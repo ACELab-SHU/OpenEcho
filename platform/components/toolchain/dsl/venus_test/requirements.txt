@@ -1,0 +1,2 @@
+# Additional dependency for scalar_o.py's conservative C length analysis.
+pycparser>=2.21,<3
