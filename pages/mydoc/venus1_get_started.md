@@ -1,5 +1,6 @@
 ---
 title: Get started with ACE-Echo 1.0
+layout: echo-doc
 summary: "Build and run Venus 1.0 workloads with the Gem5 backend."
 sidebar: mydoc_sidebar
 permalink: venus1_get_started.html

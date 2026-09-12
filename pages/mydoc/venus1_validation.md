@@ -1,5 +1,6 @@
 ---
 title: Venus 1.0 validation
+layout: echo-doc
 summary: "Measured Gem5–RTL agreement, with explicit timing and correctness boundaries."
 sidebar: mydoc_sidebar
 permalink: venus1_validation.html
