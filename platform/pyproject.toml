@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ace-echo"
+version = "1.0.0"
+description = "Unified Venus task, DAG, and application development on Gem5"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "Venus Platform Team"}]
+dependencies = []
+
+[project.scripts]
+ace-echo = "ace_echo.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

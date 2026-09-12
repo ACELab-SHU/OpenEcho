@@ -1,0 +1,65 @@
+{
+  "schema": "ace-echo-empirical-knowledge/v1",
+  "id": "venus2p0-16x128-bf82d804-memory-address-domains",
+  "date": "2026-08-20",
+  "status": "REVIEWED_BACKEND_SCOPED_EVIDENCE",
+  "scope": {
+    "backend_id": "venus2p0-16x128",
+    "backend_manifest": "configs/backends/venus2p0-16x128.json",
+    "backend_manifest_sha256": "24eecb93e178a5cacbaf82673e31a175823b5a72159e5cadb5a574f224c06bd3",
+    "rtl_commit": "bf82d804968672e04db31d105876092d78969b0e",
+    "rtl_config_sha256": "1eaadb9cbe1720108245dcbcad2b1e77e82651e288747ef3e32dd11ff5d18d97",
+    "gem5_profile": "venus-rtl-16x128"
+  },
+  "hardware_memory_map": {
+    "cluster_local_program": {"base": "0x80000000", "size": "0x8000"},
+    "cluster_local_shared": {"base": "0x80008000", "size": "0x80000"},
+    "tile0_ispm": {"base": "0x82000000", "size": "0x8000"},
+    "tile0_dspm": {"base": "0x82020000", "size": "0x4000"},
+    "tile0_vspm": {"base": "0x82100000", "size": "0x4000"}
+  },
+  "gem5_model": {
+    "shared_l2_logical_base": "0x80000000",
+    "shared_l2_capacity": "0x02000000",
+    "interpretation": "A 32 MiB modeled logical aperture/backing; it is not the 512 KiB hardware shared-SRAM capacity."
+  },
+  "pbch_fep_replay_instance": {
+    "combined_image_bytes": "0x10080",
+    "segments": [
+      {"name": "task_text", "start": "0x0000", "end_inclusive": "0x247f"},
+      {"name": "task_data", "start": "0x2480", "end_inclusive": "0x24bf"},
+      {"name": "input_iq", "start": "0x8000", "end_inclusive": "0xbfff", "logical_bytes": "0x4000"},
+      {"name": "config", "start": "0xc000", "end_inclusive": "0xc03f", "logical_bytes": "0x40"},
+      {"name": "twiddles", "start": "0xc040", "end_inclusive": "0x1003f", "logical_bytes": "0x4000"}
+    ],
+    "classification": "WORKLOAD_INSTANCE_NOT_GENERAL_LAYOUT"
+  },
+  "diagnostic": {
+    "rejected_hypothesis": "Gem5 LDU adds a fixed 0x4000 source-address bias.",
+    "root_cause": "An i16 vload received a byte count of 16384 as its element count, requested 32768 bytes, and wrapped/overwrote the 16384-byte physical VRF.",
+    "positive_explanation": [
+      "vload base 0x8000 reads 0x8000..0xffff; the 0xc000..0xffff half overwrites the first half.",
+      "vload base 0x4000 reads 0x4000..0xbfff; the 0x8000..0xbfff half overwrites the first half."
+    ],
+    "required_fix": "Use the raw descriptor LDU offset and 8192 i16 elements for a 16384-byte payload; keep vreturn length at 16384 bytes.",
+    "rejected_workaround": "Subtract 0x4000 from descriptor payload addresses."
+  },
+  "scalar_access_contract": {
+    "state": "UNQUALIFIED",
+    "finding": "The raw descriptor payload offset is an LDU/STU offset and is not proven to be a directly dereferenceable scalar C address in the current Gem5 process mapping.",
+    "gate": "Freeze and probe an explicit scalar external-L2 mapping, or keep payload access on Venus LDU/STU."
+  },
+  "authority_conflict": {
+    "active_configured_mapping": "The generated cluster0 memory wrapper and AXI fabric derive shared SRAM base 0x80008000 from program size 0x8000.",
+    "stale_or_unresolved_mapping": "hardware/soc_hierachy/venus_soc_pkg.sv names local L2 base 0x80020000 and global base 0x20020000.",
+    "status": "BACKEND_MANIFEST_QUALIFICATION_REQUIRED_BEFORE_RTL",
+    "rule": "Do not choose a universal address or bias until manifest and hardware-address authority are resolved."
+  },
+  "evidence": [
+    {"path": "/home/shenyihao/Project/Venus_3/venus_soc/.config", "sha256": "1eaadb9cbe1720108245dcbcad2b1e77e82651e288747ef3e32dd11ff5d18d97"},
+    {"path": "/home/shenyihao/Project/Venus_3/venus_soc/hardware/generated/autoconf.sv", "sha256": "4fab46a48b755820730a8e1514c2756b1bc7c8048d52bb134bdbb3eafda7885b"},
+    {"path": "/home/shenyihao/Project/Venus_3/venus_soc/hardware/fabric/tcl/venus_cluster_axi4.tcl", "sha256": "309b9592d048f50ae9585df4297a6798172040221ca13dfaf5a02af0188d6a5d"},
+    {"path": "/home/shenyihao/Project/Venus_3/venus_soc/hardware/generated/venus_cluster0_top/venus_cluster_top.sv", "sha256": "e4b64761369e9c711435a942cb8cdb55251998aea7864c461cb7cd95e19fcc69"}
+  ],
+  "vemu_used": false
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260817-oai-ce-small-domain-specialization",
+  "status": "PENDING_HUMAN_REVIEW",
+  "backend_id": "venus2p0-16x128",
+  "category": "performance_prompt",
+  "proposed_rule": "When a runtime control has a small validated legal domain, test an explicit per-value branch with fixed operation expansion while preserving the golden intermediate-width and rounding contract.",
+  "prompt": "List the legal values of each hot-loop runtime control. For one bounded control, specialize each legal value, fully expand the fixed inner work, and measure every frozen configuration against the same authoritative golden.",
+  "scope": "bounded hot loops with a frozen legal configuration domain",
+  "evidence": {
+    "task": "workloads/5g_lite/tasks/oai_nr_pdsch_mimo_ce_unrolled_venus2",
+    "source_sha256": "0897e9496bf0f8b760473f668a4b36d35af97aa1955d8bb0c89fc6b4067ae7b8",
+    "golden_matrix_sha256": "79cde790448df906132270ae5c7af3550208e5fe894204666725c41c6f784239",
+    "gem5_fast_judge_sha256": "76f699a2b764cf8065784e3e7ab7b1b70de0161aeb2a29feac7cde4625225f24",
+    "gem5_verification_judge_sha256": "de61137ad0f7d138b26f02ef3baf03c93c6ca00990612d246d547d8fb82318b8",
+    "cases_exact": "60/60 cases, 120/120 output files",
+    "aggregate_cycle_reduction_percent": 23.674,
+    "fresh_rtl_scope": "4 layers x 4 RX x 48 RB x Type-1 six-DMRS qualification wrapper",
+    "fresh_rtl_exact_beats": "48/48",
+    "fresh_rtl_log_sha256": "500f8795f44ebff740369303c9429613340b6438814ad2a4f76879b851632e52"
+  },
+  "limitations": [
+    "Measured only on Venus2.0 16x128 and this CE numerical contract.",
+    "Requires complete matrix validation because code duplication can create per-branch drift.",
+    "Fresh RTL is exact for the maximum Type-1 qualification wrapper; other structural configurations remain pending."
+  ]
+}

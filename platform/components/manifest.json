@@ -1,0 +1,44 @@
+{
+  "schema": "ace-echo-components/v1",
+  "snapshot_date": "2026-08-24",
+  "policy": {
+    "external_runtime_projects": false,
+    "external_compiler_allowed": true,
+    "rtl_repository_required": false
+  },
+  "components": {
+    "toolchain": {
+      "path": "components/toolchain",
+      "dsl_root": "components/toolchain/dsl",
+      "source_repository": "https://github.com/ACELab-SHU/ACE-Echo",
+      "source_head": "91f4579a187890e58f2ee225bb35b29762967632",
+      "source_branch": "ace-echo",
+      "git_submodule": false,
+      "working_tree_snapshot": true,
+      "runtime_emulator_included": false
+    },
+    "workloads": {
+      "path": "workloads",
+      "content_root": "workloads/5g_lite",
+      "source_repository": "https://github.com/ACELab-SHU/ACE-Echo",
+      "source_head": "e53bb0fcf2e4c272604c4b0f17ed65c77fc6cf4b",
+      "source_branch": "release/ace-echo-1.0",
+      "git_submodule": false,
+      "working_tree_snapshot": true
+    },
+    "gem5": {
+      "path": "components/gem5",
+      "source_repository": "historical provenance only: Venus_3/gem5-freertos",
+      "source_head": "f20e294b2d6de8170da5aff669375f535561690f",
+      "source_branch": "main",
+      "working_tree_snapshot": true
+    },
+    "scheduler": {
+      "path": "components/scheduler",
+      "source_repository": "historical provenance only: Venus_3/scheduler",
+      "source_head": "5a0ff2706907591120d0110cc758ef7487132884",
+      "source_branch": "2p0sim-nrPDSCH",
+      "working_tree_snapshot": true
+    }
+  }
+}

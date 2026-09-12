@@ -1,0 +1,30 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260823-venus2-task-local-dspm-vs-shared-sram",
+  "date": "2026-08-23",
+  "status": "REVIEW_REQUIRED",
+  "kind": "BACKEND_SCOPED_DEPLOYMENT_RULE",
+  "title": "Venus2 task-local DSPM is not Gem5-qualified deployment scratch",
+  "backend": "venus2p0-16x128",
+  "observation": "FFT4096 Stage2a, Stage2b, Stage3 and Stage4 candidates used vector vstore/vload round trips through task-local DSPM. Gem5 verification accepted the accesses, while fresh RTL completed the tasks but produced zero shared boundaries. Replacing the round trips with four disjoint 8 KiB shared-SRAM scratch slots made all 64 visible RTL outputs and 81920 boundary bytes exact.",
+  "rule": "For this backend, reject payload-sized task-local DSPM vector round trips in deployable candidates unless a focused paired Gem5/fresh-RTL probe for the active RTL digest qualifies the exact path. Prefer registers; otherwise use manifest-qualified shared SRAM with disjoint concurrent-task ranges and explicit lifetimes.",
+  "applicability": "venus2p0-16x128 RTL-bound task and DAG candidates",
+  "non_generalization": "The shared scratch base 0x80048000 and this DSPM behavior are not universal Venus rules and must not be copied to another backend manifest or RTL digest without requalification.",
+  "positive_evidence": {
+    "gem5_qualification": "runs/oai-nr-fft4096-live-chain-qualification-a006/report.json",
+    "fresh_rtl": "runs/oai-nr-fft4096-live-chain-rtl-verification-a008/report.json",
+    "performance": "runs/oai-nr-fft4096-live-chain-rtl-verification-a008/performance-report.json",
+    "visible_outputs_exact": "64/64",
+    "shared_boundary_bytes_exact": 81920
+  },
+  "negative_evidence": {
+    "fresh_rtl": "runs/oai-nr-fft4096-live-chain-rtl-verification-a006/report.json",
+    "symptom": "Stage2a compute returns and all downstream boundaries were zero despite task completion"
+  },
+  "proposed_agent_gate": "static reject unqualified absolute tile-local vector spill/reload in an RTL winner",
+  "promotion_target": [
+    ".agents/skills/ace-echo-venus-forge/references/venus-operator-development.md",
+    "future backend-specific static address/workspace audit"
+  ],
+  "vemu_used": false
+}

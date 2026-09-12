@@ -1,0 +1,30 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "date": "2026-08-17",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Separate logical DAG input types from the RTL physical source-category field",
+  "proposed_rule": "A backend manifest must declare the RTL task-input type width. Preserve logical JSON types 0..6 for ownership, pass mode, provenance, and Gem5 hydration, but encode the Scheduler descriptor with the backend's physical source categories. For the current two-bit Venus2 RTL, pointer aliases map 4->0, 5->1, and dynamic 6->1.",
+  "prompt": "Before generating l1.bin, compare the configured descriptor width with RTL TASK_INPUT_TYPE_BITS. Never truncate a logical type directly. First classify producer dependency, static external input, or dynamic external input, then encode the backend-specific physical category and reject any unmapped type.",
+  "scope": "ACE-ECHO backend manifest, Scheduler DAG descriptor generator, and RTL preflight",
+  "evidence": {
+    "rtl_commit": "2537dedc9ca0d2a815fc1a652c5703f92901d270",
+    "rtl_declaration": "hardware/L2_scheduler/l2_scheduler_pkg.sv:48-49 declares TASK_INPUT_TYPE_NUM=4 and TASK_INPUT_TYPE_BITS=$clog2(4)=2",
+    "scheduler_default": "components/scheduler/dags/Makefile:5 defaults DAG_INPUT_TYPE_BITS to 3",
+    "diagnosis": "runs/oai-nr-pbch-decode-rtl-a003/artifacts/rtl/diagnosis.json",
+    "fresh_vcs_build": "PASS with zero errors",
+    "runtime": "GPIO0 and GPIO1 pass, GPIO2 is not reached, and L2 allocates zero tasks",
+    "classification": "physical descriptor ABI mismatch before numerical execution"
+  },
+  "implementation_proposal": [
+    "Add physical task_input_type_bits and logical-to-physical mappings to the backend contract",
+    "Pass the declared width explicitly into the Scheduler DAG build",
+    "Keep logical input types intact while packing only backend physical source categories",
+    "Extend read-only RTL preflight to compare manifest width with TASK_INPUT_TYPE_BITS"
+  ],
+  "protected_components": [
+    "components/scheduler/dags/read_dag_json.py"
+  ],
+  "rtl_change_required": false,
+  "gem5_change_required": false,
+  "rollback": "Revert the backend and Scheduler generator adaptation and rebuild l1.bin; no workload algorithm, Gem5 implementation, or RTL source changes are required."
+}

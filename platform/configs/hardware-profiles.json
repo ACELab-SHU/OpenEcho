@@ -1,0 +1,8 @@
+{
+  "schema": "ace-echo-hardware-profiles/v1",
+  "profiles": {
+    "venus1.0": {"backend": "backends/venus1p0-64x512-300mhz.json"},
+    "venus1.0-150mhz": {"backend": "backends/venus1p0-64x512.json"},
+    "venus2.0": {"backend": "backends/venus2p0-16x128.json"}
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "ACE-ECHO Forge"
+  short_description: "AI-first Venus application deployment and RTL proof"
+  default_prompt: "Use $ace-echo-venus-forge to port this application to a configured Venus backend and prove golden, Gem5, and RTL consistency."

@@ -1,0 +1,568 @@
+[
+    {
+        "Input_Num": 2,
+        "Output_Num": 3,
+        "all_input": [
+            {
+                "dest_address": "0x22000",
+                "name": "csetNRB",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22000",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 1,
+                "length": 2,
+                "datatype": "short",
+                "offset": 45120
+            },
+            {
+                "dest_address": "0x22040",
+                "name": "demod_length",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22040",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 2,
+                "length": 2,
+                "datatype": "short",
+                "offset": 45184
+            }
+        ],
+        "all_output": [
+            {
+                "length": 4096,
+                "name": "InfoIndex",
+                "parentTasksPort": "0b0000000000",
+                "temp_offset": 6464
+            },
+            {
+                "length": 64,
+                "name": "N",
+                "parentTasksPort": "0b0000000001",
+                "temp_offset": 10560
+            },
+            {
+                "length": 64,
+                "name": "K",
+                "parentTasksPort": "0b0000000010",
+                "temp_offset": 10624
+            }
+        ],
+        "current_taskId": 0,
+        "data_length": 2112,
+        "data_offset": 1856,
+        "debug_task_name": "Task_getPolarInfo",
+        "hardwareinfo": "0b00000101111",
+        "hash": "0x26712ef",
+        "is_spmd": 0,
+        "min_core_num": 1,
+        "text_length": 1856,
+        "text_offset": 0,
+        "total_length": 3968
+    },
+    {
+        "Input_Num": 5,
+        "Output_Num": 1,
+        "all_input": [
+            {
+                "dest_address": "0x22000",
+                "length": 2048,
+                "name": "pdcch_llr",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x230C0",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b110",
+                "index": 3,
+                "datatype": "char",
+                "offset": 45248
+            },
+            {
+                "dest_address": "0x22040",
+                "name": "demod_length",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22040",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 2,
+                "length": 2,
+                "datatype": "short",
+                "offset": 45184
+            },
+            {
+                "dest_address": "0x22100",
+                "length": 64,
+                "name": "pi_",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x20000",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b101",
+                "index": 4,
+                "datatype": "short",
+                "offset": 32768
+            },
+            {
+                "concat_value": 0,
+                "dest_address": "0x220c0",
+                "name": "N",
+                "parentTasks": "0",
+                "parentTasksPort": "0b0000000001",
+                "slice_data_dest_str": "0x220C0",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b000"
+            },
+            {
+                "concat_value": 0,
+                "dest_address": "0x22080",
+                "name": "K",
+                "parentTasks": "0",
+                "parentTasksPort": "0b0000000010",
+                "slice_data_dest_str": "0x22080",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b000"
+            }
+        ],
+        "all_output": [
+            {
+                "length": 4096,
+                "name": "recBlk",
+                "parentTasksPort": "0b0000010000",
+                "temp_offset": 10688
+            }
+        ],
+        "current_taskId": 1,
+        "data_length": 0,
+        "data_offset": 4608,
+        "debug_task_name": "Task_nrRateRecoverPolar",
+        "hardwareinfo": "0b00000101111",
+        "hash": "0x17f4dea6",
+        "is_spmd": 0,
+        "min_core_num": 1,
+        "text_length": 640,
+        "text_offset": 3968,
+        "total_length": 640
+    },
+    {
+        "Input_Num": 9,
+        "Output_Num": 1,
+        "all_input": [
+            {
+                "dest_address": "0x22040",
+                "length": 64,
+                "name": "shuffle_index024",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x20040",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b101",
+                "index": 5,
+                "datatype": "short",
+                "offset": 32832
+            },
+            {
+                "dest_address": "0x22080",
+                "length": 64,
+                "name": "shuffle_index135",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x20240",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b101",
+                "index": 6,
+                "datatype": "short",
+                "offset": 33344
+            },
+            {
+                "dest_address": "0x22100",
+                "name": "numIter",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22100",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b001",
+                "index": 7,
+                "length": 64,
+                "datatype": "short",
+                "offset": 33856
+            },
+            {
+                "dest_address": "0x221c0",
+                "length": 64,
+                "name": "polar_interleaving_pattern",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x20500",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b101",
+                "index": 8,
+                "datatype": "short",
+                "offset": 34048
+            },
+            {
+                "dest_address": "0x22200",
+                "length": 64,
+                "name": "workspace_Task_nrPolarDecode",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x20680",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b101",
+                "index": 9,
+                "datatype": "char",
+                "offset": 34432
+            },
+            {
+                "dest_address": "0x220c0",
+                "length": "4096",
+                "name": "InfoIndex",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x1940",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b100"
+            },
+            {
+                "concat_value": 0,
+                "dest_address": "0x22180",
+                "name": "N",
+                "parentTasks": "0",
+                "parentTasksPort": "0b0000000001",
+                "slice_data_dest_str": "0x22180",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b000"
+            },
+            {
+                "concat_value": 0,
+                "dest_address": "0x22140",
+                "name": "K",
+                "parentTasks": "0",
+                "parentTasksPort": "0b0000000010",
+                "slice_data_dest_str": "0x22140",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b000"
+            },
+            {
+                "dest_address": "0x22000",
+                "length": "4096",
+                "name": "recBlk",
+                "parentTasksPort": "0b0000010000",
+                "slice_data_dest_str": "0x29c0",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b100"
+            }
+        ],
+        "all_output": [
+            {
+                "length": 128,
+                "name": "pdcchbits",
+                "parentTasksPort": "0b0000100000",
+                "temp_offset": 0
+            }
+        ],
+        "current_taskId": 2,
+        "data_length": 0,
+        "data_offset": 7488,
+        "debug_task_name": "Task_nrPolarDecode",
+        "hardwareinfo": "0b00000101111",
+        "hash": "0x4567d646",
+        "is_spmd": 0,
+        "min_core_num": 1,
+        "text_length": 2880,
+        "text_offset": 4608,
+        "total_length": 2880
+    },
+    {
+        "Input_Num": 2,
+        "Output_Num": 1,
+        "all_input": [
+            {
+                "dest_address": "0x22000",
+                "name": "pdcch_config",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22000",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 12,
+                "length": 192,
+                "datatype": "char",
+                "offset": 47296
+            },
+            {
+                "concat_value": 0,
+                "dest_address": "0x100000",
+                "name": "pdcchbits",
+                "parentTasks": "2",
+                "parentTasksPort": "0b0000100000",
+                "slice_data_dest_str": "0x100000",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b000"
+            }
+        ],
+        "all_output": [
+            {
+                "length": 64,
+                "name": "dci",
+                "parentTasksPort": "0b0000110000",
+                "temp_offset": 4288
+            }
+        ],
+        "current_taskId": 3,
+        "data_length": 256,
+        "data_offset": 10304,
+        "debug_task_name": "Task_nrDCIDecode",
+        "hardwareinfo": "0b00000101111",
+        "hash": "0x2c5f9582",
+        "is_spmd": 0,
+        "min_core_num": 1,
+        "text_length": 1792,
+        "text_offset": 8512,
+        "total_length": 2048
+    },
+    {
+        "Input_Num": 4,
+        "Output_Num": 2,
+        "all_input": [
+            {
+                "dest_address": "0x22080",
+                "name": "pariLen",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22080",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b001",
+                "index": 10,
+                "length": 64,
+                "datatype": "short",
+                "offset": 33984
+            },
+            {
+                "dest_address": "0x220c0",
+                "length": 64,
+                "name": "POLY_CRC24C",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x20480",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b101",
+                "index": 11,
+                "datatype": "char",
+                "offset": 33920
+            },
+            {
+                "concat_value": 0,
+                "dest_address": "0x22040",
+                "name": "K",
+                "parentTasks": "0",
+                "parentTasksPort": "0b0000000010",
+                "slice_data_dest_str": "0x22040",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b000"
+            },
+            {
+                "dest_address": "0x22000",
+                "length": "128",
+                "name": "pdcchbits",
+                "parentTasksPort": "0b0000100000",
+                "slice_data_dest_str": "0x0",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b100"
+            }
+        ],
+        "all_output": [
+            {
+                "length": 4096,
+                "name": "crc_bits",
+                "parentTasksPort": "0b0001000000",
+                "temp_offset": 128
+            },
+            {
+                "length": 2,
+                "name": "crc_result",
+                "parentTasksPort": "0b0001000001",
+                "temp_offset": 4224
+            }
+        ],
+        "current_taskId": 4,
+        "data_length": 0,
+        "data_offset": 8512,
+        "debug_task_name": "Task_nrCRC",
+        "hardwareinfo": "0b00000101111",
+        "hash": "0x7b5a779f",
+        "is_spmd": 0,
+        "min_core_num": 1,
+        "text_length": 1024,
+        "text_offset": 7488,
+        "total_length": 1024
+    },
+    {
+        "Input_Num": 5,
+        "Output_Num": 3,
+        "all_input": [
+            {
+                "dest_address": "0x22000",
+                "name": "pdcch_config",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22000",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 12,
+                "length": 192,
+                "datatype": "char",
+                "offset": 47296
+            },
+            {
+                "dest_address": "0x22100",
+                "name": "initialInfo",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22100",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 13,
+                "length": 192,
+                "datatype": "char",
+                "offset": 47488
+            },
+            {
+                "dest_address": "0x221c0",
+                "name": "csetPattern",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x221C0",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 14,
+                "length": 1,
+                "datatype": "char",
+                "offset": 47680
+            },
+            {
+                "dest_address": "0x22200",
+                "name": "c0Carrier",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22200",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 15,
+                "length": 64,
+                "datatype": "char",
+                "offset": 47744
+            },
+            {
+                "concat_value": 0,
+                "dest_address": "0x220c0",
+                "name": "dci",
+                "parentTasks": "3",
+                "parentTasksPort": "0b0000110000",
+                "slice_data_dest_str": "0x220C0",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b000"
+            }
+        ],
+        "all_output": [
+            {
+                "length": 1984,
+                "name": "pdsch_config",
+                "parentTasksPort": "0b0001010000",
+                "temp_offset": 4352
+            },
+            {
+                "length": 2,
+                "name": "pdsch_start_symbol",
+                "parentTasksPort": "0b0001010001",
+                "temp_offset": 6336
+            },
+            {
+                "length": 2,
+                "name": "pdsch_symbol_length",
+                "parentTasksPort": "0b0001010010",
+                "temp_offset": 6400
+            }
+        ],
+        "current_taskId": 5,
+        "data_length": 1216,
+        "data_offset": 17024,
+        "debug_task_name": "Task_hSIB1PDSCHConfiguration",
+        "hardwareinfo": "0b00000101111",
+        "hash": "0x96fb1327",
+        "is_spmd": 0,
+        "min_core_num": 1,
+        "text_length": 6464,
+        "text_offset": 10560,
+        "total_length": 7680
+    },
+    {
+        "return_output": [
+            {
+                "name": "pdcchbits",
+                "parentTasks": "2",
+                "parentTasksPort": "0b0000100000",
+                "taskId": "Task_nrPolarDecode",
+                "index": 0,
+                "type": "0b111",
+                "length": 128
+            },
+            {
+                "name": "dci",
+                "parentTasks": "3",
+                "parentTasksPort": "0b0000110000",
+                "taskId": "Task_nrDCIDecode",
+                "index": 0,
+                "type": "0b111",
+                "length": 64
+            },
+            {
+                "name": "crc_result",
+                "parentTasks": "4",
+                "parentTasksPort": "0b0001000001",
+                "taskId": "Task_nrCRC",
+                "index": 1,
+                "type": "0b111",
+                "length": 2
+            },
+            {
+                "name": "pdsch_config",
+                "parentTasks": "5",
+                "parentTasksPort": "0b0001010000",
+                "taskId": "Task_hSIB1PDSCHConfiguration",
+                "index": 0,
+                "type": "0b111",
+                "length": 1984
+            },
+            {
+                "name": "pdsch_start_symbol",
+                "parentTasks": "5",
+                "parentTasksPort": "0b0001010001",
+                "taskId": "Task_hSIB1PDSCHConfiguration",
+                "index": 1,
+                "type": "0b111",
+                "length": 2
+            },
+            {
+                "name": "pdsch_symbol_length",
+                "parentTasks": "5",
+                "parentTasksPort": "0b0001010010",
+                "taskId": "Task_hSIB1PDSCHConfiguration",
+                "index": 2,
+                "type": "0b111",
+                "length": 2
+            }
+        ]
+    }
+]

@@ -1,0 +1,443 @@
+#include "venus/VenusShufflePipline.hh"
+#include "mem/packet.hh"
+#include "mem/packet_access.hh" 
+#include "mem/request.hh"
+#include "base/trace.hh"
+
+namespace gem5
+{
+
+    VenusShufflePipline::VenusShufflePipline(const VenusShufflePiplineParams &p)
+        : ClockedObject(p),
+        //   nextElementToAssign(0),
+          commandActive(false),
+          numPes(p.num_pes),
+          banksPerLane(p.num_banks_per_lane),
+          numBanks(p.num_pes * p.num_banks_per_lane),
+          port_venusshuffle_hazardtable_listen(p.name + ".port_venusshuffle_hazardtable_listen", this),
+          port_venusshuffle_receivefrom_venussequencer(p.name + ".port_venusshuffle_receivefrom_venussequencer", this),
+          tickEvent([this]{ processFSM(); }, name())
+    {
+
+        for (int i = 0; i < numPes; ++i) {
+            bankPorts.push_back(new BankPort(csprintf("%s.lane_port_%d", name(), i), *this, i));
+        }
+
+        peTaskQueues.resize(numPes);
+
+        unsigned numLanes = numBanks / banksPerLane;
+        laneBlocked.resize(numLanes, false);
+
+        pes.resize(numPes);
+        for(int i=0; i<numPes; ++i) {
+            pes[i].id = i;
+            pes[i].state = PE_IDLE;
+        }
+
+        Addr base = 0x00000000;
+        for (int i = 0; i < numBanks; ++i) {
+            bankBaseAddrs.push_back(base + (i * 0x400));
+        }
+
+    }
+
+    Port &VenusShufflePipline::getPort(const std::string &if_name, PortID idx)
+    {
+        if (if_name == "lane_ports") {
+            if (idx >= 0 && idx < bankPorts.size())
+                return *bankPorts[idx];
+        }
+        if (if_name == "port_venusshuffle_receivefrom_venussequencer") {
+            return port_venusshuffle_receivefrom_venussequencer; // 返回对应的端口对象
+        }
+        if (if_name == "port_venusshuffle_hazardtable_listen") {
+            return port_venusshuffle_hazardtable_listen; // 返回对应的端口对象
+        }
+        return ClockedObject::getPort(if_name, idx);
+    }
+    bool VenusShufflePipline::VenusShuffleHazardTableListenPort::recvTimingReq(PacketPtr pkt)
+    {
+        return owner->listenHazardTableRequest((VenusHazardTable*)pkt);
+    }
+    bool VenusShufflePipline::listenHazardTableRequest(VenusHazardTable* pkt)
+    {
+        if(venus_hazard_table != nullptr) delete venus_hazard_table;
+        venus_hazard_table = new VenusHazardTable(pkt);
+        return true;
+    }
+    bool VenusShufflePipline::VenusShuffleSequencerSidePort::recvTimingReq(PacketPtr pkt)
+    {
+        
+        DPRINTF(ShuffleEngine,"VenusShuffleSequencerSidePort received some info.\n");
+        if (!owner->ShufflehandleNewInstrRequest((VenusInstrPkt*)pkt)) {
+            // needRetry = true;
+            DPRINTF(ShuffleEngine,"VenusShuffleSequencerSidePort reports an nack.\n");
+            return false;
+        } else {
+            DPRINTF(ShuffleEngine,"VenusShuffleSequencerSidePort reports an ack.\n");
+            return true;
+        }
+    }
+    bool VenusShufflePipline::ShufflehandleNewInstrRequest(VenusInstrPkt* pkt)
+    {
+        if(instrpktQueue.size() > 1)
+        {
+            return false; // 队列已满，拒绝新指令
+        }
+
+
+
+        unsigned full_vl = pkt->vl;
+        unsigned processed_vl = 0;
+
+        while (processed_vl < full_vl) {
+            unsigned current_chunk_vl = full_vl - processed_vl;
+
+            ShuffleCommand cmd;
+            cmd.vs1_row = pkt->vs1_head;
+            cmd.vs2_row = pkt->vs2_head;
+            cmd.vd_row  = pkt->vd1_head;
+            cmd.vl      = current_chunk_vl;
+            cmd.start_idx = processed_vl;
+            cmd.op      = (pkt->vm_r == 1) ? SHUFFLE_GATHER : SHUFFLE_SCATTER;
+            cmd.width = (unsigned int)pkt->vew + 1;
+
+            cmdQueue.push_back(cmd);
+            processed_vl += current_chunk_vl;
+        }
+        instrpktQueue.push_back(*pkt);
+
+        if (!tickEvent.scheduled()) {
+            schedule(tickEvent, nextCycle());
+        }
+        return true;
+    }
+
+    void VenusShufflePipline::init()
+    {
+        ClockedObject::init();
+        std::cout<<"Note: ASYNC ShuffleEngine Equipped!"<<std::endl;
+    }
+
+    VenusShufflePipline::BankLoc VenusShufflePipline::getBankLoc(unsigned rowOffset, unsigned idx, unsigned width)
+    {
+        unsigned effWidth = width;
+        const unsigned BANK_CAPACITY = 2; 
+        unsigned elementsPerBank = BANK_CAPACITY / effWidth;
+        if (elementsPerBank == 0) elementsPerBank = 1;
+        
+        unsigned bankBlockIdx = idx / (numBanks * elementsPerBank); //当前向量的第几行
+        // std::cout << "当前向量的第几行, bankBlockIdx=" << bankBlockIdx << std::endl;
+        unsigned relativeIdxInBlock = idx % (numBanks * elementsPerBank); //当前行的第几个元素
+        // std::cout << "当前行的第几个元素, relativeIdxInBlock=" << relativeIdxInBlock << std::endl;
+        unsigned globalBankId = (relativeIdxInBlock / elementsPerBank) % numBanks;
+        // std::cout << "第几个BANK, globalBankId=" << globalBankId << std::endl;
+
+        unsigned index_within_line = idx % (elementsPerBank * numBanks); //一行剩余的byte数
+        // std::cout << "当前行的第几个元素, index_within_line=" << index_within_line << std::endl;
+        unsigned row_num = idx / (elementsPerBank * numBanks);
+        // std::cout << "当前向量的第几行, row_num=" << row_num << std::endl;
+        unsigned bank_index_inlane = (index_within_line / (elementsPerBank)) % NrBankPerLane;
+        // std::cout << "LANE中第几个BANK, bank_index_inlane=" << bank_index_inlane << std::endl;
+        int bank_offset = ((bank_index_inlane + row_num + rowOffset) % NrBankPerLane) - bank_index_inlane;
+        // std::cout << "BANK偏移, bank_offset=" << bank_offset << std::endl;
+        unsigned barberpoleBankId = (index_within_line / (elementsPerBank)) + bank_offset;
+        // std::cout << "要访问的BANK号, barberpoleBankId=" << barberpoleBankId << std::endl;
+        // std::cout << "绝对第几个BANK, globalBankId=" << globalBankId << std::endl;
+
+        unsigned intraBankIdx = relativeIdxInBlock % elementsPerBank;
+        unsigned laneIdx = globalBankId / banksPerLane;
+        unsigned localBankIdx = globalBankId % banksPerLane;
+        unsigned byteoffsetInBank = (bankBlockIdx * elementsPerBank + intraBankIdx) * effWidth;
+
+        Addr addr = bankBaseAddrs[barberpoleBankId] + (rowOffset * BANK_CAPACITY) + byteoffsetInBank;
+
+        return { (int)laneIdx, (int)localBankIdx, (int)globalBankId, addr };
+    }
+
+    void VenusShufflePipline::processFSM()
+    {
+        if(shuffle_halt == true) {
+            DPRINTF(ShuffleEngine,"VenusShufflePipline halt!.\n");
+            schedule(tickEvent, nextCycle());
+            return;
+        }
+
+        bool anyPeBusy = false;
+        
+        unsigned numLanes = numBanks / banksPerLane;
+        std::vector<bool> laneUsedThisCycle(numLanes, false);
+
+        if (!commandActive && !cmdQueue.empty()) {
+            if(venus_hazard_table->checkifreadytofire(instrpktQueue.front().running_id)) {
+                DPRINTF(LaneSequencer, "VenusShuffle insn send from laneSequencerFIFO to operandRequester, instr %d with runningID %d\n", instrpktQueue.front().vns_instr_id, instrpktQueue.front().running_id);
+            } else {
+                DPRINTF(LaneSequencer, "VenusShuffle insn does not start, instr %d with runningID %d, hazard stat is:%s\n", instrpktQueue.front().vns_instr_id, instrpktQueue.front().running_id, venus_hazard_table->reportHazardStat(instrpktQueue.front().running_id));
+                schedule(tickEvent, nextCycle());
+                return;
+            }
+            
+            instrpktQueue.front().vns_instr_stat = INSTR_FIRED;
+            instrpktQueue.front().vns_instr_log_starttick = curTick();
+
+            currentCmd = cmdQueue.front();
+            cmdQueue.pop_front();
+            // nextElementToAssign = 0;
+            commandActive = true;
+
+            // scheduledIndices.clear();
+            for(auto& q : peTaskQueues) q.clear();
+
+            
+            int stride = numPes;     
+            int blockSize = numBanks;   
+
+            for (int base = 0; base < currentCmd.vl; base += blockSize) {
+                int perPeCount = blockSize / stride;
+                for (int p = 0; p < stride; ++p) {
+                    for (int k = 0; k < perPeCount; ++k) {
+                        int val = base + (p * perPeCount) + k; 
+                        
+                        if (val < currentCmd.vl) {
+                            peTaskQueues[p].push_back(val);
+                        }
+                    }
+                }
+            }
+
+            DPRINTF(ShuffleEngine, "\n========================================\n");
+            DPRINTF(ShuffleEngine, "[%d] NEW COMMAND STARTED (VL=%d) Total Sched Size=%d\n", curTick(), currentCmd.vl, currentCmd.vl);
+            for(int i=0; i<numPes; ++i) {
+                DPRINTF(ShuffleEngine, "  PE%d Tasks: %d\n", i, peTaskQueues[i].size());
+            }
+            DPRINTF(ShuffleEngine, "========================================\n");
+        }
+            
+        if (!commandActive && cmdQueue.empty()) {
+            for(const auto& pe : pes) if(pe.state != PE_IDLE) anyPeBusy = true;
+            if(!anyPeBusy) return; 
+        }
+
+        for (int i = 0; i < numPes; ++i) {
+            PEInfo& pe = pes[i];
+            
+            if (pe.blockedPkt != nullptr || 
+                pe.state == PE_WAIT_INDEX || 
+                pe.state == PE_WAIT_DATA || 
+                pe.state == PE_WAIT_WRITE) {
+                anyPeBusy = true;
+                continue;
+            }
+
+            switch (pe.state) {
+                case PE_IDLE: {
+                    if (commandActive && !peTaskQueues[i].empty()) {
+                        
+                        int logicalIdx = peTaskQueues[i].front();
+                        peTaskQueues[i].pop_front();
+
+                        pe.currentElementIdx = currentCmd.start_idx + logicalIdx;
+                        
+                        DPRINTF(ShuffleEngine, "[%d] PE%d Assigned Idx %d\n", curTick(), i , logicalIdx);
+                        
+                        pe.state = PE_REQ_INDEX;
+                        anyPeBusy = true;
+                    } 
+                    // 如果队列空了，PE 保持 IDLE，不阻塞其他 PE
+                    break;
+                }
+                case PE_REQ_INDEX: {
+                    anyPeBusy = true;
+                    BankLoc loc = getBankLoc(currentCmd.vs1_row, pe.currentElementIdx, 2);
+                    
+                    if (laneBlocked[loc.laneIdx] || laneUsedThisCycle[loc.laneIdx]) continue; 
+
+                    RequestPtr req = std::make_shared<Request>(loc.addr, 2, 0, bankPorts[loc.laneIdx]->getId());
+                    PacketPtr pkt = new Packet(req, MemCmd::ReadReq, req->getSize(), 9); // ShuffleRead use passage ID 9
+                    pkt->allocate();
+                    pkt->pushSenderState(new ShuffleSenderState(pe.id)); 
+
+                    if (bankPorts[loc.laneIdx]->sendTimingReq(pkt)) {
+                        DPRINTF(ShuffleEngine, "[%d] PE%d REQ_INDEX -> [Lane %d][Bank %d] (addr: %d) (targetRow: %d) (targetIdx: %d)\n", curTick(), i, loc.laneIdx, loc.globalBankIdx, loc.addr, currentCmd.vs1_row, pe.currentElementIdx);
+                        pe.state = PE_WAIT_INDEX;
+                        laneUsedThisCycle[loc.laneIdx] = true; 
+                    } else {
+                        pe.blockedPkt = pkt;
+                        pe.blockedBankId = loc.globalBankIdx;
+                        pe.blockedLaneId = loc.laneIdx; 
+                        laneBlocked[loc.laneIdx] = true; 
+                    }
+                    break;
+                }
+                case PE_REQ_DATA: {
+                    anyPeBusy = true;
+                    unsigned targetIdx, targetRow;
+                    if (currentCmd.op == SHUFFLE_GATHER) {
+                        targetIdx = pe.fetchedIndex; 
+                        targetRow = currentCmd.vs2_row;
+                    } else { 
+                        targetIdx = pe.currentElementIdx;
+                        targetRow = currentCmd.vs2_row;
+                    }
+
+                    BankLoc loc = getBankLoc(targetRow, targetIdx, currentCmd.width);
+
+                    if (laneBlocked[loc.laneIdx] || laneUsedThisCycle[loc.laneIdx]) continue; 
+
+                    RequestPtr req = std::make_shared<Request>(loc.addr, currentCmd.width, 0, bankPorts[loc.laneIdx]->getId());
+                    PacketPtr pkt = new Packet(req, MemCmd::ReadReq, req->getSize(), 9); // ShuffleRead use passage ID 9
+                    pkt->allocate();
+                    pkt->pushSenderState(new ShuffleSenderState(pe.id));
+
+                    if (bankPorts[loc.laneIdx]->sendTimingReq(pkt)) {
+                        DPRINTF(ShuffleEngine, "[%d] PE%d REQ_DATA -> [Lane %d][Bank %d] (addr: %d) (targetRow: %d) (targetIdx: %d)\n", curTick(), i, loc.laneIdx, loc.globalBankIdx, loc.addr, targetRow, targetIdx);
+                        pe.state = PE_WAIT_DATA;
+                        laneUsedThisCycle[loc.laneIdx] = true;
+                    } else {
+                        pe.blockedPkt = pkt;
+                        pe.blockedBankId = loc.globalBankIdx;
+                        pe.blockedLaneId = loc.laneIdx;
+                        laneBlocked[loc.laneIdx] = true;
+                    }
+                    break;
+                }
+                case PE_REQ_WRITE: {
+                    anyPeBusy = true;
+                    unsigned targetIdx, targetRow;
+                    if (currentCmd.op == SHUFFLE_GATHER) {
+                        targetIdx = pe.currentElementIdx; 
+                        targetRow = currentCmd.vd_row;
+                    } else {
+                        targetIdx = pe.fetchedIndex;
+                        targetRow = currentCmd.vd_row;
+                    }
+
+                    BankLoc loc = getBankLoc(targetRow, targetIdx, currentCmd.width);
+                    
+                    if (laneBlocked[loc.laneIdx] || laneUsedThisCycle[loc.laneIdx]) continue;
+
+                    RequestPtr req = std::make_shared<Request>(loc.addr, currentCmd.width, 0, bankPorts[loc.laneIdx]->getId());
+                    PacketPtr pkt = new Packet(req, MemCmd::WriteReq, req->getSize(), 16); // ShuffleWrite use passage ID 16
+                    pkt->allocate();
+                    
+                    uint8_t* dataPtr = new uint8_t[currentCmd.width];
+                    for(unsigned b=0; b<currentCmd.width; ++b) {
+                        dataPtr[b] = (pe.fetchedData >> (b*8)) & 0xFF;
+                    }
+                    pkt->setData(dataPtr); 
+                    delete[] dataPtr; 
+
+                    pkt->pushSenderState(new ShuffleSenderState(pe.id));
+
+                    if (bankPorts[loc.laneIdx]->sendTimingReq(pkt)) {
+                        DPRINTF(ShuffleEngine, "[%d] PE%d REQ_WRITE -> [Lane %d][Bank %d] (addr: %d) (targetRow: %d) (targetIdx: %d)\n", curTick(), i, loc.laneIdx, loc.globalBankIdx, loc.addr, targetRow, targetIdx);
+                        pe.state = PE_WAIT_WRITE;
+                        laneUsedThisCycle[loc.laneIdx] = true;
+                    } else {
+                        pe.blockedPkt = pkt;
+                        pe.blockedBankId = loc.globalBankIdx;
+                        pe.blockedLaneId = loc.laneIdx;
+                        laneBlocked[loc.laneIdx] = true;
+                    }
+                    break;
+                }
+                default: break;
+            }
+        }
+
+        if (commandActive || anyPeBusy || !cmdQueue.empty()) {
+            schedule(tickEvent, nextCycle());
+        }
+
+        bool allIdle = true;
+        for(const auto& pe : pes) if(pe.state != PE_IDLE) allIdle = false;
+
+        bool allQueuesEmpty = true;
+        for(const auto& q : peTaskQueues) if(!q.empty()) allQueuesEmpty = false;
+
+        if (commandActive && allQueuesEmpty && allIdle) {
+            commandActive = false;
+            DPRINTF(ShuffleEngine, "[%d] Command Completed.\n", curTick());
+
+            DPRINTF(LaneSequencer,"reportAndRecycleDoneInstr with VID = %d\n",instrpktQueue.front().vns_instr_id);
+            VenusInstrPkt returninstr = instrpktQueue.front();
+            returninstr.vns_instr_stat = INSTR_DONE;
+            returninstr.vns_instr_log_endtick = curTick();
+            returninstr.makeResponse();
+            port_venusshuffle_receivefrom_venussequencer.sendTimingResp((PacketPtr)&returninstr);
+            instrpktQueue.pop_front();
+        }
+    }
+
+    bool VenusShufflePipline::handleResponse(PacketPtr pkt, int portId)
+    {
+        ShuffleSenderState* senderState = dynamic_cast<ShuffleSenderState*>(pkt->popSenderState());
+        int peId = senderState->peId;
+        delete senderState;
+
+        PEInfo& pe = pes[peId];
+
+        if (pe.state == PE_WAIT_INDEX && pkt->isRead()) {
+            pe.fetchedIndex = (uint16_t)pkt->getLE<uint16_t>();      
+            DPRINTF(ShuffleEngine, "[%d] PE%d GOT requested index from -> [Port %d] index -> [0x%x]\n", curTick(), peId, portId, pe.fetchedIndex);
+            pe.state = PE_REQ_DATA;
+        }
+        else if (pe.state == PE_WAIT_DATA && pkt->isRead()) {
+            pe.fetchedData = 0;
+            unsigned bytesToCopy = (pkt->getSize() > 2) ? 2 : pkt->getSize();
+            if (bytesToCopy == 1) pe.fetchedData = pkt->getLE<uint8_t>();
+            else if (bytesToCopy == 2) pe.fetchedData = pkt->getLE<uint16_t>();
+            DPRINTF(ShuffleEngine, "[%d] PE%d GOT requested data from -> [Port %d] data -> [0x%x]\n", curTick(), peId, portId, pe.fetchedData);
+            
+            pe.state = PE_REQ_WRITE;
+        }
+        else if (pe.state == PE_WAIT_WRITE && pkt->isWrite()) {
+            DPRINTF(ShuffleEngine, "[%d] PE%d Write Done\n", curTick(), peId);
+            
+            pe.state = PE_IDLE; 
+        }
+        delete pkt;
+
+        if (!tickEvent.scheduled()) schedule(tickEvent, nextCycle());
+        return true;
+    }
+
+
+    void VenusShufflePipline::handleRetry(int portId)
+    {
+        bool success = false;
+        int unblockedLaneId = -1;
+
+        DPRINTF(ShuffleEngine, "[%d] DEBUG: handleRetry called for Lane/Port %d\n", curTick(), portId);
+
+        for(int i=0; i<numPes; ++i) {
+            if (pes[i].blockedPkt != nullptr && pes[i].blockedLaneId == portId) {
+                DPRINTF(ShuffleEngine, "  -> PE%d was blocked on this lane. Retrying...\n", i);
+                if (bankPorts[portId]->sendTimingReq(pes[i].blockedPkt)) {
+                    unblockedLaneId = pes[i].blockedLaneId;
+
+                    pes[i].blockedPkt = nullptr;
+                    pes[i].blockedBankId = -1;
+                    pes[i].blockedLaneId = -1;
+                    
+                    if (pes[i].state == PE_REQ_INDEX) pes[i].state = PE_WAIT_INDEX;
+                    else if (pes[i].state == PE_REQ_DATA) pes[i].state = PE_WAIT_DATA;
+                    else if (pes[i].state == PE_REQ_WRITE) pes[i].state = PE_WAIT_WRITE;
+                    
+                    DPRINTF(ShuffleEngine, "[%d] PE%d Retry Success on Bank %d\n", curTick(), i, portId);
+                    success = true;
+                    break;
+                }else{
+                    DPRINTF(ShuffleEngine, "  -> PE%d Retry FAILED (Port still busy).\n", i);
+                }
+            }
+        }
+        
+        if (success && unblockedLaneId != -1) {
+            laneBlocked[unblockedLaneId] = false;
+            DPRINTF(ShuffleEngine, "  -> Lane%d Unblocked.\n", unblockedLaneId);
+        }
+
+        if (!tickEvent.scheduled()) schedule(tickEvent, nextCycle());
+    }
+}

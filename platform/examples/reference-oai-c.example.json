@@ -1,0 +1,28 @@
+{
+  "schema": "ace-echo-reference-adapter/v1",
+  "adapter_id": "oai-c-cmake",
+  "language": "C/C++",
+  "commands": {
+    "prepare": ["git", "-C", "{source_root}", "rev-parse", "HEAD"],
+    "build": ["cmake", "--build", "{build_dir}", "--target", "{target}"],
+    "run": ["{reference_binary}", "--case", "{case_manifest}"],
+    "extract": ["python3", "{extract_script}", "--run-dir", "{run_dir}"]
+  },
+  "environment": {
+    "source_commit_required": true,
+    "command_receipts_required": true
+  },
+  "input_schema": {
+    "manifest": "case-manifest.json",
+    "payloads": "content-addressed binary files"
+  },
+  "output_schema": {
+    "manifest": "golden-manifest.json",
+    "all_visible_outputs_required": true,
+    "intermediate_checkpoints_optional": true
+  },
+  "comparison": {
+    "mode": "bit_exact_after_approved_fixed_point_contract",
+    "float_model_role": "algorithm_accuracy_only"
+  }
+}

@@ -1,0 +1,31 @@
+schema_version = 1
+run_root = "../runs"
+
+[projects]
+toolchain_root = "../components/toolchain"
+workload_root = "../workloads/5g_lite"
+gem5_root = "../components/gem5"
+scheduler_root = "../components/scheduler"
+
+[compiler]
+# External compiler installations are the only allowed paths outside ACE-ECHO.
+venus_llvm_bin = "/opt/venus-llvm/bin"
+riscv_gcc_root = "/opt/riscv32im"
+scheduler_cross_prefix = "/opt/riscv32-glibc/bin/riscv32-unknown-linux-gnu-"
+
+[gem5]
+fast_binary = "build/RISCV/gem5.opt"
+verification_binary = "build/RISCV/gem5.debug"
+config_script = "configs/tutorial/part1/packet_gen.py"
+venus_config = "venus1p0-64x512-300mhz"
+fast_mode = "fast"
+verification_mode = "verification"
+
+[scheduler]
+default_target = "venus"
+default_main = "src/main.c"
+
+[timeouts]
+task_seconds = 900
+dag_seconds = 3600
+application_seconds = 7200

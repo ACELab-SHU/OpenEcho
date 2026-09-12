@@ -1,0 +1,88 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260819-venus-temp-pin-observable-checkpoint",
+  "date": "2026-08-19",
+  "status": "PENDING_HUMAN_REVIEW",
+  "category": "dsl_validation_observability",
+  "title": "Use #pragma temp pin for observable task outputs in partial Venus DAGs",
+  "human_guidance": {
+    "authority": "direct platform-owner instruction",
+    "statement": "When a task output is temporarily unused because the DAG is incomplete, and it is not a DAG return value, declare it with #pragma temp pin so it is not reclaimed and remains available for software-versus-RTL comparison."
+  },
+  "proposed_rule": "In an incremental or deliberately truncated DAG, explicitly list every task output that must be inspected as a Gem5/RTL checkpoint in #pragma temp pin(...) when that output is neither consumed by a downstream task nor declared as a DAG return value.",
+  "semantic_effect": [
+    "The named task-output temporary receives stable exclusive storage in the temporary arena.",
+    "Its allocation is not released or reused by normal lifetime-based temporary allocation.",
+    "Declaration order determines pin allocation order.",
+    "The pragma does not promote the value to a DAG return value, create a dependency, pin a vector register, or change task scheduling."
+  ],
+  "primary_use_case": {
+    "kind": "partial_dag_checkpoint",
+    "conditions": [
+      "the producer task is present",
+      "the intended downstream DAG is not yet complete or is deliberately cut at the checkpoint",
+      "the producer output currently has no consumer",
+      "the producer output is not a declared whole-DAG return value",
+      "the output must remain observable for bit-exact Gem5-versus-RTL comparison"
+    ],
+    "example": "dag dag1 = { #pragma temp pin(debug_output) [debug_output] = Task_A(input) }"
+  },
+  "applicability": [
+    "single-task bring-up DAGs",
+    "small DAG integration checkpoints",
+    "intermediate-output software/hardware consistency debugging",
+    "temporarily incomplete application DAGs"
+  ],
+  "exclusions_and_costs": [
+    "Do not use pin merely for an ordinary output whose lifetime is already covered by downstream consumers unless a stable debug address is intentionally required.",
+    "Pinning prevents lifetime reuse and can increase temporary-memory peak usage.",
+    "Pinning alone does not export bytes to the host; the Gem5/RTL evidence flow must still locate and extract the pinned temporary."
+  ],
+  "current_dsl_evidence": {
+    "repository_commit": "4f8c78b6ebc203d105eee6cef99d321875b5bcd7",
+    "parser": {
+      "path": "components/toolchain/dsl/ply/basparse.py:550-665",
+      "sha256": "147046b55011dc456c69d622deb2f3138693a11b638db31003ad445bbd49be09",
+      "fact": "The grammar accepts #pragma temp pin(varlist), requires at least one plain variable name, and rejects pointer spellings."
+    },
+    "lifetime_analysis": {
+      "path": "components/toolchain/dsl/ply/basinterp.py:1413-1539",
+      "sha256": "eab787c1f4620bc3ed3d60a86118e0ef982b6d439c5dda2355dfa2942e96b325",
+      "fact": "The interpreter validates pin names as task-output temporaries and records is_pinned plus pin_order."
+    },
+    "allocator": {
+      "path": "components/toolchain/dsl/script/temporary_variable_allocator.py:112-224",
+      "sha256": "aded85872ff35397a22364037b2cabb93a307340e0642a30df7c135513fe60ba",
+      "fact": "Pinned temporaries are bump-allocated in declaration order into an exclusive prefix that normal first-fit lifetime allocation cannot reuse."
+    }
+  },
+  "implementation_review_required": {
+    "observation": "The current interpreter also implicitly pins every unused task output and every DAG return value. It warns that explicitly pinning such a value is redundant.",
+    "risk": "Relying only on implicit unused-output pinning hides checkpoint intent in BAS and can make behavior dependent on compiler policy. Conversely, documenting explicit pin as mandatory while the compiler calls it redundant is confusing.",
+    "decision_needed": "Review whether explicit checkpoint pin should remain recommended documentation only, suppress the redundant warning for validation checkpoints, or replace implicit unused-output pinning with an explicit contract in a separately approved DSL change."
+  },
+  "proposed_foundation_patch": {
+    "target": "docs/knowledge/foundations/venus-user-guide.md",
+    "base_sha256": "fbdd94de79f2805a36406860671f71b07d245b9ed00dfe5f244d58e2db50cce1",
+    "section": "BAS temporary observability and #pragma temp pin",
+    "required_content": [
+      "syntax and plain-name restriction",
+      "exclusive temporary-storage semantics",
+      "partial-DAG checkpoint use case",
+      "distinction from DAG return values, dependencies, scheduling and vector-register pinning",
+      "memory-peak cost",
+      "current implicit-pin behavior and its review status"
+    ]
+  },
+  "validation_before_promotion": [
+    "Compile a focused positive partial DAG with one explicitly pinned, unconsumed, non-return task output and inspect temp_variables.json plus temp_alloc.json.",
+    "Prove the checkpoint has a stable address and compare its complete bytes in Gem5 and fresh RTL.",
+    "Compile negative cases for an unknown name, an input variable and a pointer spelling and require deterministic rejection.",
+    "Compile a memory-pressure case demonstrating that pinning increases or preserves peak temporary usage rather than enabling lifetime reuse.",
+    "Decide and test the intended behavior for the current implicit auto-pin and redundant-warning policy."
+  ],
+  "rollback": "Remove the proposed foundation section and this index entry; no DSL, Scheduler, Gem5 or RTL behavior is changed by this proposal.",
+  "dsl_change_applied": false,
+  "live_wiki_changed": false,
+  "vemu_used": false
+}

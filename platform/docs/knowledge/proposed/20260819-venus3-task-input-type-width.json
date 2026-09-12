@@ -1,0 +1,66 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "date": "2026-08-19",
+  "status": "REVIEW_REQUIRED",
+  "title": "Bind the Venus2.0 backend handoff to the selected Venus_3 RTL three-bit task-input descriptor",
+  "classification": "BACKEND_CONTRACT_CORRECTION",
+  "scope": [
+    "configs/backends/venus2p0-16x128.json"
+  ],
+  "proposed_patch": {
+    "path": "abi.task_input_descriptor.physical_type_bits",
+    "before": 2,
+    "after": 3
+  },
+  "unchanged_conservative_policy": {
+    "logical_to_physical_type": {
+      "0": 0,
+      "1": 1,
+      "2": 2,
+      "4": 0,
+      "5": 1,
+      "6": 1
+    },
+    "rtl_unsupported_logical_types": [4, 5, 6],
+    "reason": "The CCH DAG uses only logical types 0, 1, and 2. Pointer-type semantics 4, 5, and 6 remain blocked until separately qualified."
+  },
+  "authoritative_rtl": {
+    "root": "/home/shenyihao/Project/Venus_3/venus_soc",
+    "commit": "bf82d804968672e04db31d105876092d78969b0e",
+    "declaration": "hardware/L2_scheduler/l2_scheduler_pkg.sv:48-49",
+    "source_sha256": "24fbf3b4d869298ba96c6ff2914d57c3e3ccf072957dc7df899297e7da2543e6",
+    "fact": "TASK_INPUT_TYPE_NUM is 8 and TASK_INPUT_TYPE_BITS is $clog2(8), therefore the physical descriptor field is three bits."
+  },
+  "positive_negative_probe": {
+    "two_bit_firmware": {
+      "result": "FAIL_NO_TASK_ALLOCATION",
+      "evidence": "runs/review-cch-compact-venus3-rtl-a001/artifacts/sim-2bit-descriptor-hang.log",
+      "allocation_evidence": "runs/review-cch-compact-venus3-rtl-a001/artifacts/l2-allocation-2bit-descriptor-hang.txt"
+    },
+    "three_bit_firmware": {
+      "result": "PASS",
+      "minimal_probe_manifest": "runs/review-cch-compact-venus3-rtl-a001/artifacts/backend-venus3-minimal-3bit-probe.json",
+      "minimal_probe_manifest_sha256": "1e9752183e961a53b28cf216f5d919321963bce18e6b264aaf195a32e1a70b8b",
+      "firmware_sha256": "8fef0edce6da94d9366cebbf6d24a8c7e610c7cabc578d272a215b262d1edbb5",
+      "markers": ["GPIO0", "GPIO1", "GPIO2", "GPIO3", "Test complete!"],
+      "task_completions": 3,
+      "rtl_exact_ports": 18,
+      "rtl_visible_ports": 18,
+      "rtl_compare_receipt": "runs/review-cch-compact-venus3-rtl-a001/artifacts/rtl-all-visible-ports-compare.json",
+      "rtl_compare_receipt_sha256": "414892b85d1cd211f8c6f5756230b321d5ffb303e86ed28dba2990eb9ee6dee0"
+    }
+  },
+  "workload_impact": "No C task, BAS DAG, golden, Scheduler core, Gem5 semantic, or RTL source change is needed.",
+  "required_regression_after_approval": [
+    "Validate the live backend manifest.",
+    "Rerun the integrated CCH Gem5 verification under the approved manifest.",
+    "Rebuild exact Scheduler firmware and require the expected l1.bin digest.",
+    "Create a new isolated RTL snapshot with snapshot-only file-list relocation.",
+    "Perform a fresh VCS compile and compare all 18 visible RTL outputs."
+  ],
+  "rollback": "Change abi.task_input_descriptor.physical_type_bits from 3 back to 2. No generated firmware or evidence is promoted automatically.",
+  "rtl_change_required": false,
+  "scheduler_core_change_required": false,
+  "gem5_semantic_change_required": false,
+  "vemu_used": false
+}

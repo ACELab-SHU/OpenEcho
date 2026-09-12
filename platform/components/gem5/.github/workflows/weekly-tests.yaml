@@ -1,0 +1,119 @@
+---
+# This workflow runs all of the very-long tests within main.py
+
+name: Weekly Tests
+
+on:
+    # This is triggered weekly via the 'scheduler.yaml' workflow.
+    workflow_dispatch:
+
+jobs:
+
+    get-date:
+        runs-on: ubuntu-latest
+        outputs:
+            date: ${{ steps.date.outputs.date }}
+        steps:
+            - name: Get the current date
+              id: date
+              run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+    get-testlib-very-long-dirs:
+        runs-on: ubuntu-latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:v25-0
+        outputs:
+            test-dirs-matrix: ${{ steps.dir-matrix.outputs.test-dirs-matrix }}
+        steps:
+            - uses: actions/checkout@v4
+            - name: Get directories for testlib-very-long
+              working-directory: ${{ github.workspace }}/tests
+              id: dir-matrix
+              run: |
+                  unset PREV
+                  echo "test-dirs-matrix=$(\
+                    ./main.py list gem5 \
+                    --suites \
+                    --length very-long \
+                    --exclude-tags gcn_gpu | \
+                    grep "$SUITEUID:" | \
+                    cut -d: -f2 | \
+                    cut -d/ -f 2- | \
+                    xargs dirname | \
+                    sort -u  | \
+                    while read x; do \
+                      if [ -z "${PREV}" ] || [ "$x" != "${PREV}/*" ]; then \
+                        PREV=$x; \
+                        echo $x; \
+                      fi; \
+                    done  | \
+                    jq -ncR '[inputs]'\
+                  )" >>$GITHUB_OUTPUT
+
+    # start running the very-long tests
+    testlib-very-long-tests:
+        name: very-long-tests
+        strategy:
+            fail-fast: false
+            matrix:
+                test-type: ${{ fromJson(needs.get-testlib-very-long-dirs.outputs.test-dirs-matrix) }}
+        runs-on: [self-hosted, linux, x64]
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:v25-0
+        timeout-minutes: 4320 # 3 days
+        needs: [get-date, get-testlib-very-long-dirs]
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Cache build/ALL
+              uses: actions/cache@v4
+              with:
+                  path: build/ALL
+                  key: testlib-build-all-${{ needs.get-date.outputs.date }}
+                  restore-keys: |
+                      testlib-build-all
+
+            - name: Run very-long ${{ matrix.test-type }} tests
+              id: run-tests
+              working-directory: ${{ github.workspace }}/tests
+              run: ./main.py run ${{ matrix.test-type }} --length very-long -j$(nproc) -vv --exclude-tags gcn_gpu
+
+            - name: Sanitize test-dir for artifact name
+              id: sanitize-test-dir
+              if: success() || failure()
+              run: echo "sanitized-test-dir=$(echo '${{ matrix.test-type }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+
+            - name: Upload results
+              if: success() || failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: weekly-tests-run-${{ github.run_number }}-attempt-${{ github.run_attempt }}-testlib-very-long-${{ steps.sanitize-test-dir.outputs.sanitized-test-dir
+                      }}-status-${{ steps.run-tests.outcome }}-output
+                  path: tests/testing-results
+
+    gpu-tests:
+        runs-on: [self-hosted, linux, x64]
+        container: ghcr.io/gem5/gcn-gpu:v25-0
+        timeout-minutes: 1440 # 24 hours
+        needs: get-date
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Cache build/VEGA_X86
+              uses: actions/cache@v4
+              with:
+                  path: build/VEGA_X86
+                  key: testlib-build-vega-${{ needs.get-date.outputs.date }}
+                  restore-keys: |
+                      testlib-build-vega
+
+            - name: Run Testlib GPU Tests
+              id: run-tests
+              working-directory: ${{ github.workspace }}/tests
+              run: ./main.py run --length=very-long -vvv -j $(nproc) --host gcn_gpu
+
+            - name: Upload results
+              if: success() || failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: weekly-tests-run-${{ github.run_number }}-attempt-${{ github.run_attempt }}-gpu-status-${{ steps.run-tests.outcome }}-output
+                  path: tests/testing-results

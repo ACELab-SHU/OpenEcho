@@ -1,0 +1,43 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260828-scheduler-runtime-argument-encounter-order",
+  "date": "2026-08-28",
+  "status": "REVIEW_REQUIRED",
+  "kind": "PORTABLE_SCHEDULER_ADAPTER_ABI_RULE_WITH_VENUS2_RTL_EVIDENCE",
+  "title": "Bind repeated-DAG runtime arguments in first descriptor encounter order",
+  "objective": "Prevent continuous multi-fire launchers from silently binding correct runtime buffers to the wrong task ports when descriptor order and address order differ.",
+  "proposed_rule": {
+    "statement": "When a Scheduler launcher materializes runtime arguments for a physical DAG, derive positional argument order from the first occurrence of each runtime input while traversing the serialized descriptor/task-input stream. Preserve repeated uses through that identity. Do not sort arguments by runtime offset, source address, buffer name, task ID, or consumer schedule unless the backend contract explicitly defines that ordering.",
+    "qualification": "Before fresh RTL, compare the generated launcher order against the serialized descriptor encounter order and include at least one case whose runtime addresses are intentionally non-monotonic. Require all visible returns and final reconstructed output to remain exact.",
+    "scope": "Scheduler application adapters and repeated physical-DAG launchers; numeric addresses and descriptor encodings remain backend scoped."
+  },
+  "backend_scoped_evidence": {
+    "backend_id": "venus2p0-16x128",
+    "rtl_commit": "bf82d804968672e04db31d105876092d78969b0e",
+    "workload": "OAI NR UE PUSCH DFT576 continuous two-template chain",
+    "approved_golden_digest": "a6123c7bf9ed3c3c0b1623a932e8c629e4349fa655a3fc83c18702ea3ab2ae19",
+    "rejected_order": ["a0", "a1", "x10", "x11", "x20", "x21", "b0", "b1", "c0", "c1"],
+    "descriptor_encounter_order": ["a0", "x10", "x20", "a1", "x11", "x21", "b0", "c0", "b1", "c1"],
+    "negative_result": "Fresh RTL completed all tasks but the first inner radix-3 return diverged immediately after the incorrectly bound handoff; the first 72 DFT64 rows remained exact.",
+    "corrected_result": "A focused one-symbol probe matched 144/144 returns, followed by a fresh ten-symbol RTL build matching 1440/1440 returns and the 23040-byte OAI output exactly.",
+    "negative_evidence": "runs/20260827-121146-forge-UE_PUSCH_TX_FRONTEND-v1-venus2/stages/F118-dft576-continuous-rtl/attempt-002/fresh-build/negative-evidence.json",
+    "positive_evidence": "runs/20260827-121146-forge-UE_PUSCH_TX_FRONTEND-v1-venus2/stages/F118-dft576-continuous-rtl/attempt-004/fresh-final/artifacts/rtl-return-qualification.json"
+  },
+  "non_transferable_items": [
+    "the concrete runtime addresses",
+    "the DFT576 task names and port labels",
+    "the number of fires or returned bytes",
+    "the Venus2 descriptor binary encoding"
+  ],
+  "promotion_conditions": [
+    "Human review",
+    "Confirm the ordering rule against current Scheduler source or an independently generated descriptor microbenchmark",
+    "Add a generator regression whose runtime offsets are deliberately non-monotonic",
+    "Bind promotion to the reviewed Scheduler and backend-manifest digests"
+  ],
+  "rollback": "Remove this proposal and its index entry; the workload fix and immutable positive/negative evidence remain valid.",
+  "rtl_modified": false,
+  "scheduler_core_modified": false,
+  "gem5_model_modified": false,
+  "vemu_used": false
+}

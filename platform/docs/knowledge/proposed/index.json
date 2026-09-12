@@ -1,0 +1,277 @@
+{
+  "schema": "ace-echo-knowledge-proposal-index/v1",
+  "review_model": "Review consolidated abstractions; retain historical proposals as immutable source evidence.",
+  "review_queue": [
+    {
+      "id": "20260828-scheduler-runtime-argument-encounter-order",
+      "path": "20260828-scheduler-runtime-argument-encounter-order.json",
+      "sha256": "3fc3ddc5ecd693a3e18ab480435b0f81d46157675374c5bdd8c8ec9f4eb8ba1c",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_SCHEDULER_ADAPTER_ABI_RULE_WITH_VENUS2_RTL_EVIDENCE"
+    },
+    {
+      "id": "20260826-scheduler-sparse-runtime-workspace-reservation",
+      "path": "20260826-scheduler-sparse-runtime-workspace-reservation.json",
+      "sha256": "83d57dab959b55fbb26699764f754eab9836670aaa9da460482ba71b0af27957",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_SCHEDULER_ADDRESS_SPACE_RULE_WITH_BACKEND_SCOPED_EVIDENCE"
+    },
+    {
+      "id": "20260823-venus-visible-output-oracle-and-return-register-binding",
+      "path": "20260823-venus-visible-output-oracle-and-return-register-binding.json",
+      "sha256": "7bce2309735723a573b31d2710a4c3ece5f1d5c1d553bf72382eb0d1c01fee2d",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_CORRECTNESS_RULE_WITH_VENUS2_COMPILER_EVIDENCE"
+    },
+    {
+      "id": "20260823-venus-zero-copy-dag-handoff-and-return-alignment",
+      "path": "20260823-venus-zero-copy-dag-handoff-and-return-alignment.json",
+      "sha256": "61b8082b6ad592d36e5e13b86b8f038a2b24026183875910e674efcad048e938",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_DAG_PERFORMANCE_AND_RTL_VERIFICATION_RULE"
+    },
+    {
+      "id": "20260823-venus2-global-parameter-address-encoding-boundary",
+      "path": "20260823-venus2-global-parameter-address-encoding-boundary.json",
+      "sha256": "6cffcdc068be2f737e1489ec47f1ff00a861a72d6ef5da4c8dd365c6a10d00af",
+      "status": "EMPIRICAL_PROFILE_REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_SEARCH_AND_QUALIFICATION_RULE"
+    },
+    {
+      "id": "20260822-venus2-wide-value-task-isolation",
+      "path": "20260822-venus2-wide-value-task-isolation.json",
+      "sha256": "e57175d99d0d776a633d73675ee976277237bbc44b0e304e379e30b0447512c0",
+      "status": "REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_SEARCH_RULE"
+    },
+    {
+      "id": "20260821-venus-staged-dynamic-dag-qualification",
+      "path": "20260821-venus-staged-dynamic-dag-qualification.json",
+      "sha256": "5728c4d28456682581d0c3bd68975072b822d17da74f0d9050f4ef30c0d5da0e",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_DAG_QUALIFICATION_RULE"
+    },
+    {
+      "id": "20260820-venus-programming-contract-v1",
+      "path": "20260820-venus-programming-contract-v1.json",
+      "sha256": "19b74786991a0543e27357744cb12d479c5bbca0bdb8667772ccfd8911128903",
+      "status": "REVIEW_REQUIRED",
+      "role": "FOUNDATION_CONTRACT"
+    },
+    {
+      "id": "20260820-venus-performance-design-principles-v1",
+      "path": "20260820-venus-performance-design-principles-v1.json",
+      "sha256": "907a05bfd03f8a5d6ed02b9092e2959cb953ed9e0eb6be649b4da1628ed6bd83",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_PERFORMANCE_METHOD"
+    },
+    {
+      "id": "20260820-venus2-compatibility-profile-bf82d804",
+      "path": "20260820-venus2-compatibility-profile-bf82d804.json",
+      "sha256": "2fe32aa9b7831317ade8456a9a8ba423fc8467c3c25255ce001cab63a2b15f82",
+      "status": "EMPIRICAL_PROFILE_REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_EVIDENCE"
+    }
+  ],
+  "proposals": [
+    {
+      "id": "20260826-scheduler-sparse-runtime-workspace-reservation",
+      "path": "20260826-scheduler-sparse-runtime-workspace-reservation.json",
+      "sha256": "83d57dab959b55fbb26699764f754eab9836670aaa9da460482ba71b0af27957",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_SCHEDULER_ADDRESS_SPACE_RULE_WITH_BACKEND_SCOPED_EVIDENCE"
+    },
+    {
+      "id": "20260823-venus-visible-output-oracle-and-return-register-binding",
+      "path": "20260823-venus-visible-output-oracle-and-return-register-binding.json",
+      "sha256": "7bce2309735723a573b31d2710a4c3ece5f1d5c1d553bf72382eb0d1c01fee2d",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_CORRECTNESS_RULE_WITH_VENUS2_COMPILER_EVIDENCE"
+    },
+    {
+      "id": "20260823-venus-zero-copy-dag-handoff-and-return-alignment",
+      "path": "20260823-venus-zero-copy-dag-handoff-and-return-alignment.json",
+      "sha256": "61b8082b6ad592d36e5e13b86b8f038a2b24026183875910e674efcad048e938",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_DAG_PERFORMANCE_AND_RTL_VERIFICATION_RULE_WITH_BACKEND_SCOPED_EVIDENCE"
+    },
+    {
+      "id": "20260823-venus2-global-parameter-address-encoding-boundary",
+      "path": "20260823-venus2-global-parameter-address-encoding-boundary.json",
+      "sha256": "6cffcdc068be2f737e1489ec47f1ff00a861a72d6ef5da4c8dd365c6a10d00af",
+      "status": "EMPIRICAL_PROFILE_REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_SEARCH_AND_QUALIFICATION_RULE"
+    },
+    {
+      "id": "20260822-venus2-wide-value-task-isolation",
+      "path": "20260822-venus2-wide-value-task-isolation.json",
+      "sha256": "e57175d99d0d776a633d73675ee976277237bbc44b0e304e379e30b0447512c0",
+      "status": "REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_SEARCH_RULE"
+    },
+    {
+      "id": "20260821-venus-staged-dynamic-dag-qualification",
+      "path": "20260821-venus-staged-dynamic-dag-qualification.json",
+      "sha256": "5728c4d28456682581d0c3bd68975072b822d17da74f0d9050f4ef30c0d5da0e",
+      "status": "REVIEW_REQUIRED",
+      "role": "PORTABLE_RULE_WITH_BACKEND_SCOPED_EVIDENCE"
+    },
+    {
+      "id": "20260820-venus2-memory-address-domains-bf82d804",
+      "path": "20260820-venus2-memory-address-domains-bf82d804.json",
+      "sha256": "8bf6588b7778095e8dbf6fa6948eb28ee464d4c327e0fb60db1e4f2b5a18aa36",
+      "status": "PROMOTED_AFTER_HUMAN_REQUEST_AND_AGENT_REVIEW",
+      "role": "FOUNDATION_RULE_PLUS_BACKEND_SCOPED_EVIDENCE",
+      "promotion_receipt": "../../runs/knowledge-review-20260820-a003.json"
+    },
+    {
+      "id": "20260820-venus-programming-contract-v1",
+      "path": "20260820-venus-programming-contract-v1.json",
+      "sha256": "19b74786991a0543e27357744cb12d479c5bbca0bdb8667772ccfd8911128903",
+      "status": "REVIEW_REQUIRED",
+      "role": "CONSOLIDATED_REVIEW_UNIT"
+    },
+    {
+      "id": "20260820-venus-performance-design-principles-v1",
+      "path": "20260820-venus-performance-design-principles-v1.json",
+      "sha256": "907a05bfd03f8a5d6ed02b9092e2959cb953ed9e0eb6be649b4da1628ed6bd83",
+      "status": "REVIEW_REQUIRED",
+      "role": "CONSOLIDATED_REVIEW_UNIT"
+    },
+    {
+      "id": "20260820-venus2-compatibility-profile-bf82d804",
+      "path": "20260820-venus2-compatibility-profile-bf82d804.json",
+      "sha256": "2fe32aa9b7831317ade8456a9a8ba423fc8467c3c25255ce001cab63a2b15f82",
+      "status": "EMPIRICAL_PROFILE_REVIEW_REQUIRED",
+      "role": "CONSOLIDATED_REVIEW_UNIT"
+    },
+    {
+      "id": "20260817-oai-ce-small-domain-specialization",
+      "path": "20260817-oai-ce-small-domain-specialization.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-performance-design-principles-v1"
+      ]
+    },
+    {
+      "id": "20260817-rtl-testbench-api-preflight",
+      "path": "20260817-rtl-testbench-api-preflight.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260817-scheduler-rtl-input-type-width",
+      "path": "20260817-scheduler-rtl-input-type-width.json",
+      "status": "HISTORICAL_COUNTEREXAMPLE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "note": "The two-bit value is stale for RTL bf82d804, which declares three bits.",
+      "consolidated_into": [
+        "20260820-venus-programming-contract-v1",
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260817-venus2-vcmxmul-live-pressure-guard",
+      "path": "20260817-venus2-vcmxmul-live-pressure-guard.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-performance-design-principles-v1",
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260818-venus2-terminal-vector-coherence",
+      "path": "20260818-venus2-terminal-vector-coherence.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-programming-contract-v1",
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260818-scheduler-dag-completion-poll-fallback",
+      "path": "20260818-scheduler-dag-completion-poll-fallback.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260818-venus-dag-output-port-capacity",
+      "path": "20260818-venus-dag-output-port-capacity.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-programming-contract-v1",
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260818-dsl-static-dependency-input-order",
+      "path": "20260818-dsl-static-dependency-input-order.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-programming-contract-v1",
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260818-venus2-wide-vector-unroll-compatibility",
+      "path": "20260818-venus2-wide-vector-unroll-compatibility.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-performance-design-principles-v1",
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260819-venus-temp-pin-observable-checkpoint",
+      "path": "20260819-venus-temp-pin-observable-checkpoint.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-programming-contract-v1"
+      ]
+    },
+    {
+      "id": "20260820-venus2-vector-scratch-barrier-boundary",
+      "path": "20260820-venus2-vector-scratch-barrier-boundary.json",
+      "status": "SOURCE_EVIDENCE_CONSOLIDATED",
+      "role": "SOURCE_EVIDENCE",
+      "consolidated_into": [
+        "20260820-venus-programming-contract-v1",
+        "20260820-venus-performance-design-principles-v1",
+        "20260820-venus2-compatibility-profile-bf82d804"
+      ]
+    },
+    {
+      "id": "20260823-venus2-task-local-dspm-vs-shared-sram",
+      "path": "20260823-venus2-task-local-dspm-vs-shared-sram.json",
+      "sha256": "1343401487392dc7030d1162f5310c9cd3d02fef7e265fcb3f3317036c8cde82",
+      "status": "REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_DEPLOYMENT_RULE"
+    },
+    {
+      "id": "20260827-venus2-rtl-effective-dag-task-count",
+      "path": "20260827-venus2-rtl-effective-dag-task-count.json",
+      "status": "REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_DEPLOYMENT_RULE"
+    },
+    {
+      "id": "20260904-venus1-shuffle-maxavl-16384",
+      "path": "20260904-venus1-shuffle-maxavl-16384.json",
+      "sha256": "3430bfd015f556881268486723030f2777ccebe082422a51886f089d0aa9ba4d",
+      "status": "REVIEW_REQUIRED",
+      "role": "BACKEND_SCOPED_SHUFFLE_INDEX_DOMAIN_RULE"
+    }
+  ]
+}

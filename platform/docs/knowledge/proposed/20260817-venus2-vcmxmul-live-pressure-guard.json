@@ -1,0 +1,28 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260817-venus2-vcmxmul-live-pressure-guard",
+  "status": "PENDING_HUMAN_REVIEW",
+  "backend_id": "venus2p0-16x128",
+  "category": "compiler_compatibility",
+  "proposed_rule": "Before ranking a vcmxmul candidate with large retained output vectors, estimate live rows and compile a reduced probe; stop after repeated identical register-allocation or Venus-merge assertions.",
+  "proposed_linter_hint": "Warn when vcmxmul is introduced while two or more maximum-capacity return vectors remain live across the operation; suggest shortening return live ranges or a reduced compiler probe.",
+  "evidence": {
+    "candidate": "workloads/5g_lite/tasks/oai_nr_pdsch_mimo_ce_vectorprod_venus2",
+    "attempts": [
+      "runs/oai-mimo-ce-vectorprod-compile-a001",
+      "runs/oai-mimo-ce-vectorprod-compile-a002",
+      "runs/oai-mimo-ce-vectorprod-compile-a003",
+      "runs/oai-mimo-ce-vectorprod-compile-a004",
+      "runs/oai-mimo-ce-vectorprod-compile-a005"
+    ],
+    "observed_failures": [
+      "MachineInstr::getOperand out of range in register allocation or Venus merge",
+      "Register already assigned in register allocation"
+    ],
+    "firmware_produced": false
+  },
+  "limitations": [
+    "This is a compiler-context guard, not a claim that vcmxmul itself is unsupported.",
+    "A reduced positive probe and fresh RTL evidence are required before promotion to live knowledge."
+  ]
+}

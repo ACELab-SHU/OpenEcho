@@ -1,0 +1,50 @@
+Import('*')
+
+env.Append(CPPPATH=[Dir('.').srcnode().abspath, '#ext/include'])
+
+# SimObject('random_number_gen.py',
+#           sim_objects=['random_number_gen'])
+# Source('random_number_gen.cc')
+DebugFlag('MEMVRF')
+DebugFlag('Lane')
+DebugFlag('LaneSequencer')
+DebugFlag('LaneOperandRequester')
+DebugFlag('LaneVSPM')
+DebugFlag('LaneVFU')
+DebugFlag('LaneVFUFull')
+DebugFlag('VenusSequencer')
+DebugFlag('VenusSequencerFull')
+DebugFlag('VenusScalarDispatch')
+DebugFlag('VenusL1Dma')
+DebugFlag('ShuffleEngine')
+Source('venus_instr_pkt.cc')
+Source('venus_extension_pkg.cc')
+Source('venus_vfu.cc')
+SimObject('VenusPacketGen.py',
+          sim_objects=['VenusPacketGen'])
+Source('VenusPacketGen.cc')
+SimObject('VenusSequencer.py',
+          sim_objects=['VenusSequencer'])
+Source('VenusSequencer.cc')
+SimObject('VenusSharedL2.py',
+          sim_objects=['VenusSharedL2'])
+Source('VenusSharedL2.cc')
+SimObject('VenusL1DmaEngine.py',
+          sim_objects=['VenusL1DmaEngine'])
+Source('VenusL1DmaEngine.cc')
+SimObject('VenusDagScheduler.py',
+          sim_objects=['VenusDagScheduler'])
+Source('VenusDagScheduler.cc')
+SimObject('VenusSchedulerFirmware.py',
+          sim_objects=['VenusSchedulerFirmware'])
+Source('VenusSchedulerFirmware.cc')
+SimObject('VenusLane.py',
+          sim_objects=['VenusLane'])
+Source('VenusLane.cc')
+SimObject('VenusShufflePipline.py',
+          sim_objects=['VenusShufflePipline']) #异步
+Source('VenusShufflePipline.cc') #异步
+# SimObject('VenusShuffleEngine.py',
+#           sim_objects=['VenusShufflePipline']) #同步
+# Source('VenusShuffleEngine.cc') #同步
+# DebugFlag('random_number_genDebug')

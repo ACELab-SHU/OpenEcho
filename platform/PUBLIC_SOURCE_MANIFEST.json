@@ -1,0 +1,33 @@
+{
+  "schema": "ace-echo-public-source/v1",
+  "version": "1.0.0",
+  "source_revisions": {
+    "platform": "2e20b3996270c7b7c62c83e037baff078cacb882",
+    "dsl": "91f4579a187890e58f2ee225bb35b29762967632",
+    "workloads": "e53bb0fcf2e4c272604c4b0f17ed65c77fc6cf4b"
+  },
+  "workload_paths": [
+    "5g_lite/include",
+    "5g_lite/tasks/nrPBCH",
+    "5g_lite/tasks/nrPDCCH",
+    "5g_lite/tasks/ltePBCHDag1_hw",
+    "5g_lite/tasks/ltePBCHDag2_hw",
+    "5g_lite/tasks/ltePCFICH",
+    "5g_lite/tasks/ltePDCCHDag1_hw",
+    "5g_lite/tasks/ltePDCCHDag2_hw",
+    "5g_lite/tasks/ltePDSCH",
+    "5g_lite/tasks/forge_vector_smoke"
+  ],
+  "distribution": "Revision-pinned source snapshots; no internal Git service required.",
+  "external_prerequisites": [
+    "Venus-custom LLVM",
+    "RISC-V GCC"
+  ],
+  "rtl_distributed": false,
+  "excluded_historical_artifacts": [
+    {
+      "path": "components/gem5/debug.logf",
+      "sha256": "e0980abf01f843daf24e8c8c5ddc523fb54bd1ce690f8ae7f488cbfa4cbff806"
+    }
+  ]
+}

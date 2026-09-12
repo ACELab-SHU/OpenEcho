@@ -1,0 +1,172 @@
+#ifndef __MEM_VENUS_SHUFFLE_HH__
+#define __MEM_VENUS_SHUFFLE_HH__
+
+#include "sim/clocked_object.hh"
+#include "mem/port.hh"
+#include <vector>
+#include <deque>
+#include <iostream>
+#include <iomanip>
+#include "params/VenusShufflePipline.hh"
+#include "debug/ShuffleEngine.hh"
+#include "debug/LaneSequencer.hh"
+#include "venus_instr_pkt.hh"
+
+namespace gem5
+{
+
+    enum ShuffleOp {
+        SHUFFLE_SCATTER = 0,
+        SHUFFLE_GATHER  = 1
+    };
+
+    struct ShuffleCommand {
+        unsigned vs1_row; 
+        unsigned vs2_row; 
+        unsigned vd_row;  
+        unsigned vl;
+        unsigned start_idx;      
+        ShuffleOp op;
+        unsigned width; //debug
+    };
+
+    class VenusShufflePipline : public ClockedObject
+    {
+    private:
+        class VenusShuffleSequencerSidePort : public ResponsePort {
+            private:
+                VenusShufflePipline *owner;
+
+            protected:
+                Tick recvAtomic(PacketPtr pkt) override { panic("recvAtomic unimpl."); }
+                void recvFunctional(PacketPtr pkt) override { panic("recvFunctional unimpl."); }
+                bool recvTimingReq(PacketPtr pkt) override;
+                // bool sendTimingResp(PacketPtr pkt) override;
+                void recvRespRetry() override { panic("recvRespRetry unimpl."); }
+
+            public:
+            AddrRangeList getAddrRanges() const override { panic("getAddrRanges unimpl."); }
+
+            VenusShuffleSequencerSidePort(const std::string &name, VenusShufflePipline *owner) : ResponsePort(name, owner), owner(owner)
+            {
+            }
+        };
+        class VenusShuffleHazardTableListenPort : public ResponsePort
+        {
+            private:
+                VenusShufflePipline *owner;
+
+            protected:
+                Tick recvAtomic(PacketPtr pkt) override { panic("recvAtomic unimpl."); }
+                void recvFunctional(PacketPtr pkt) override { panic("recvFunctional unimpl."); }
+                bool recvTimingReq(PacketPtr pkt) override;
+                void recvRespRetry() override { panic("recvRespRetry unimpl."); }
+
+            public:
+                AddrRangeList getAddrRanges() const override { panic("getAddrRanges unimpl."); }
+
+                VenusShuffleHazardTableListenPort(const std::string &name, VenusShufflePipline *owner) : ResponsePort(name, owner), owner(owner)
+                {
+                }
+        };
+        bool ShufflehandleNewInstrRequest(VenusInstrPkt* pkt);
+        class BankPort : public RequestPort {
+            private:
+                VenusShufflePipline& owner;
+                int portId;
+            public:
+                BankPort(const std::string& _name, VenusShufflePipline& _owner, int _id) :
+                    RequestPort(_name, &_owner), owner(_owner), portId(_id) {}
+                bool recvTimingResp(PacketPtr pkt) override { return owner.handleResponse(pkt, portId); }
+                void recvReqRetry() override { owner.handleRetry(portId); }
+                int getId() const { return portId; }
+        };
+        
+        enum PEState {
+            PE_IDLE,
+            PE_REQ_INDEX,
+            PE_WAIT_INDEX,
+            PE_REQ_DATA,
+            PE_WAIT_DATA,
+            PE_REQ_WRITE,
+            PE_WAIT_WRITE
+        };
+
+        struct PEInfo {
+            int id;
+            PEState state;
+            unsigned currentElementIdx; 
+            
+            uint16_t fetchedIndex;
+            uint16_t fetchedData; 
+            
+            PacketPtr blockedPkt; 
+            int blockedBankId; 
+            int blockedLaneId; 
+
+            bool taskActive;            // 是否还有任务
+            
+            PEInfo() : id(0), state(PE_IDLE), 
+                       currentElementIdx(0), fetchedIndex(0), 
+                       fetchedData(0), blockedPkt(nullptr), 
+                       blockedBankId(-1),
+                       taskActive(false)
+                       {}
+        };
+
+        struct ShuffleSenderState : public Packet::SenderState {
+            int peId;
+            ShuffleSenderState(int _id) : peId(_id) {}
+        };
+
+        VenusShuffleSequencerSidePort port_venusshuffle_receivefrom_venussequencer;
+        VenusShuffleHazardTableListenPort port_venusshuffle_hazardtable_listen;
+        std::vector<BankPort*> bankPorts; 
+        std::vector<bool> laneBlocked;    
+        std::vector<PEInfo> pes;          
+
+        std::deque<ShuffleCommand> cmdQueue;
+        std::deque<VenusInstrPkt> instrpktQueue;
+        ShuffleCommand currentCmd;
+
+        // unsigned nextElementToAssign;
+        bool commandActive;
+        
+        unsigned numBanks; // Total banks (16)
+        unsigned numPes;   // Total PEs (16)
+        std::vector<Addr> bankBaseAddrs;
+
+        // unsigned dataWidth;     debug
+        // unsigned numLanes;      // 4
+        unsigned banksPerLane;  // 4
+        // std::vector<int> scheduledIndices;
+        std::vector<std::deque<int>> peTaskQueues;
+
+        EventFunctionWrapper tickEvent;
+
+        void processFSM();
+        bool handleResponse(PacketPtr pkt, int portId);
+        void handleRetry(int portId);
+        
+        struct BankLoc {
+            int laneIdx;     // New: Lane ID
+            int localBankIdx;// New: Bank ID within Lane
+            int globalBankIdx;
+            Addr addr;
+        };
+        BankLoc getBankLoc(unsigned row, unsigned idx, unsigned width);
+
+        VenusHazardTable *venus_hazard_table = nullptr;
+
+        bool listenHazardTableRequest(VenusHazardTable *pkt);
+    public:
+        VenusShufflePipline(const VenusShufflePiplineParams &p);
+        Port &getPort(const std::string &if_name, PortID idx=InvalidPortID) override;
+        void init() override;
+
+        bool shuffle_halt = false;
+    };
+
+}
+
+#endif

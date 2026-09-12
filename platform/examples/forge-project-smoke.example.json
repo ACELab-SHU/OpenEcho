@@ -1,0 +1,25 @@
+{
+  "schema": "ace-echo-forge-request/v1",
+  "intent": "Exercise the selected hardware with the provisional two-task software smoke",
+  "source": {
+    "kind": "venus_source",
+    "language": "Venus C/BAS",
+    "root": "../workloads/5g_lite/tasks/forge_vector_smoke"
+  },
+  "backend_manifest": "@project",
+  "reference": {"state": "PROVISIONAL_GOLDEN"},
+  "workload": {
+    "kind": "dag",
+    "name": "forge-project-smoke",
+    "required_correctness_scopes": ["gem5_task_output_exact", "gem5_final_dag_output_exact"]
+  },
+  "optimization": {
+    "primary_metric": "gem5_ticks", "max_candidates": 3, "plateau_candidates": 2,
+    "ai_first": true, "one_hypothesis_per_candidate": true
+  },
+  "cleanup": {"after_application_complete": true, "retain_top_correct": 3},
+  "validation": {
+    "vemu_forbidden": true, "rtl_source_immutable": true,
+    "compare_all_visible_outputs": true, "freeze_case_inputs_and_outputs": true
+  }
+}

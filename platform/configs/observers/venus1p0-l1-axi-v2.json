@@ -1,0 +1,172 @@
+{
+  "schema": "ace-echo-readonly-axi-observer/v1",
+  "backend_id": "venus1p0-64x512-300mhz",
+  "backend_sha256": "a9e3ac252b4de068448af145598d12bd32813272cc1829e0c1856c62b08db6b5",
+  "rtl_commit": "a34a99aeb9245e01178d7a357c226e87a4249aef",
+  "rtl_sources": {
+    "hardware/soc_hierachy/venus_soc_pkg.sv": "300e887fce3d66bd706d8fa70a41aeae01dc45f3c183e9f8a64cd1f4b295bc50",
+    "hardware/L2_scheduler/dma_pkg.sv": "5cd6a0d4b1b437658dbf347c2a834382bbc5eed6b94c420d853b565e2d84a557",
+    "hardware/L2_scheduler/dma_func_wrapper.sv": "73cf9b9ed40079350a7bf08301cf68f132231e300c1ddd5f8d4f7664d052d6fa",
+    "hardware/L2_scheduler/dma_axi_if.sv": "46cae1dc5e6f66942504fb24a178c394768a838f7c694469bef36ab659a9efe6",
+    "hardware/L2_scheduler/dma_streamer.sv": "c4e1f6077a1342c61e3c33cfa7ba753219d780715dd07845eb411ae0b8826592",
+    "hardware/fabric/ip_wrapper/venus_gc0802_axi_wrapper.sv": "f97a331d682441b33b26da8b067f7819a1acdd42a5b3696451a431143510fb35",
+    "hardware/soc_hierachy/venus_gc0802_top.sv": "8477343029f754529fc96bc8daf0c0ac5751105842046ad9ba2edcc1fd97686b"
+  },
+  "hierarchy": "testbench.tb.pad.dut.u_venus_L1_dmac.u_dma_func",
+  "signals": {
+    "clk": 1,
+    "rstn": 1,
+    "dma_go_i": 1,
+    "dma_desc_i": 96,
+    "dma_stats_o": 3,
+    "dma_error_o": 35,
+    "axi_req_o": 712,
+    "axi_resp_i": 546
+  },
+  "fields": {
+    "reset": [
+      "rstn",
+      0,
+      1
+    ],
+    "go": [
+      "dma_go_i",
+      0,
+      1
+    ],
+    "source": [
+      "dma_desc_i",
+      64,
+      32
+    ],
+    "length": [
+      "dma_desc_i",
+      32,
+      32
+    ],
+    "destination": [
+      "dma_desc_i",
+      0,
+      32
+    ],
+    "active": [
+      "dma_stats_o",
+      0,
+      1
+    ],
+    "done": [
+      "dma_stats_o",
+      1,
+      1
+    ],
+    "error": [
+      "dma_stats_o",
+      2,
+      1
+    ],
+    "error_valid": [
+      "dma_error_o",
+      0,
+      1
+    ],
+    "awaddr": [
+      "axi_req_o",
+      680,
+      32
+    ],
+    "awid": [
+      "axi_req_o",
+      668,
+      9
+    ],
+    "awlen": [
+      "axi_req_o",
+      660,
+      8
+    ],
+    "awsize": [
+      "axi_req_o",
+      657,
+      3
+    ],
+    "awburst": [
+      "axi_req_o",
+      655,
+      2
+    ],
+    "awvalid": [
+      "axi_req_o",
+      646,
+      1
+    ],
+    "wdata": [
+      "axi_req_o",
+      134,
+      512
+    ],
+    "wstrb": [
+      "axi_req_o",
+      70,
+      64
+    ],
+    "wlast": [
+      "axi_req_o",
+      69,
+      1
+    ],
+    "wvalid": [
+      "axi_req_o",
+      68,
+      1
+    ],
+    "bready": [
+      "axi_req_o",
+      67,
+      1
+    ],
+    "awready": [
+      "axi_resp_i",
+      545,
+      1
+    ],
+    "wready": [
+      "axi_resp_i",
+      543,
+      1
+    ],
+    "bvalid": [
+      "axi_resp_i",
+      542,
+      1
+    ],
+    "bid": [
+      "axi_resp_i",
+      530,
+      9
+    ],
+    "bresp": [
+      "axi_resp_i",
+      528,
+      2
+    ]
+  },
+  "data_bytes": 64,
+  "max_burst_beats": 64,
+  "burst_type": 1,
+  "awsize": 6,
+  "timescale": "1ps",
+  "sampling": "stable values strictly before each 0-to-1 clock transition",
+  "clock": "clk",
+  "capture": "VPD with deltaCycle on; vpd2vcd -full64 without filtering",
+  "ucli_hierarchy": "tb.pad.dut.u_venus_L1_dmac.u_dma_func",
+  "physical_id_contract": {
+    "width": 9,
+    "aggregate_width": 12,
+    "reason": "venus_gc0802_axi_wrapper.sv localparam ID_BUS_WIDTH_M = 9; awid_m2 and bid_m2 connect only [8:0]. Aggregate BID[11:9] is not part of this physical master interface. Full aggregate remains in raw VPD/VCD; no data byte is masked or reconstructed.",
+    "source_lines": [
+      43,
+      99,
+      117
+    ]
+  }
+}

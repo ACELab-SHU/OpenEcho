@@ -1,0 +1,164 @@
+#include "common.h"
+#include "config.h"
+#include "venus.h"
+
+#include "irq_instr.S"
+
+/*
+ * The include is generated from dags/input/nrPDCCH_tv9.params.  Keeping the
+ * raw vector outside this source makes the launcher reproducible and avoids
+ * treating a partial BAS initializer as the DMA allocation size.
+ */
+#include "../dags/generated/nrPDCCH_tv9_data.inc"
+#include "../dags/generated/nrPDCCH_tv9_golden.inc"
+
+static rfdata_t dfe_input_0_rfdata;
+static rfdata_t dfe_input_1_rfdata;
+static rfdata_t dfe_input_2_rfdata;
+
+static stdata_t scsSSB_s;
+static stdata_t symbolNum0_s;
+static stdata_t symbolNum1_s;
+static stdata_t symbolNum2_s;
+static stdata_t cch_nrb_s;
+static stdata_t csetNRB_s;
+static stdata_t csetSubcarriers_s;
+static stdata_t csetDuration_s;
+static stdata_t pdcch_config_s;
+static stdata_t c0Carrier_s;
+static stdata_t aLevIdx_s;
+static stdata_t cIdx_s;
+static stdata_t numCand_s;
+static stdata_t freq0_s;
+static stdata_t initialInfo_s;
+static stdata_t csetPattern_s;
+
+/* Return order is defined by nrPDCCH_2p0.json, not by BAS declaration order. */
+static stdata_t pdcchbits_s;
+static stdata_t dci_s;
+static stdata_t crc_result_s;
+static stdata_t pdsch_config_out_s;
+static stdata_t pdsch_start_symbol_s;
+static stdata_t pdsch_symbol_length_s;
+
+static void init_pdcch_fifos(void) {
+  init_fifo(&dfe_input_0_rfdata.fifo);
+  init_fifo(&dfe_input_1_rfdata.fifo);
+  init_fifo(&dfe_input_2_rfdata.fifo);
+
+  init_fifo(&scsSSB_s.fifo);
+  init_fifo(&symbolNum0_s.fifo);
+  init_fifo(&symbolNum1_s.fifo);
+  init_fifo(&symbolNum2_s.fifo);
+  init_fifo(&cch_nrb_s.fifo);
+  init_fifo(&csetNRB_s.fifo);
+  init_fifo(&csetSubcarriers_s.fifo);
+  init_fifo(&csetDuration_s.fifo);
+  init_fifo(&pdcch_config_s.fifo);
+  init_fifo(&c0Carrier_s.fifo);
+  init_fifo(&aLevIdx_s.fifo);
+  init_fifo(&cIdx_s.fifo);
+  init_fifo(&numCand_s.fifo);
+  init_fifo(&freq0_s.fifo);
+  init_fifo(&initialInfo_s.fifo);
+  init_fifo(&csetPattern_s.fifo);
+
+  init_fifo(&pdcchbits_s.fifo);
+  init_fifo(&dci_s.fifo);
+  init_fifo(&crc_result_s.fifo);
+  init_fifo(&pdsch_config_out_s.fifo);
+  init_fifo(&pdsch_start_symbol_s.fifo);
+  init_fifo(&pdsch_symbol_length_s.fifo);
+}
+
+static int compare_output(const unsigned char* actual,
+                          const unsigned char* expected, int length) {
+  int error_count = 0;
+  for (int i = 0; i < length; i++) {
+    if (actual[i] != expected[i]) {
+      error_count++;
+    }
+  }
+  return error_count;
+}
+
+__attribute__((optimize("O0"))) void main() {
+  int error_count;
+  unsigned char* pdcchbits;
+  unsigned char* dci;
+  unsigned char* crc_result;
+  unsigned char* pdsch_config_out;
+  unsigned char* pdsch_start_symbol;
+  unsigned char* pdsch_symbol_length;
+
+  printf("PDCCH_TV9 launch\n");
+  REG_WRITE(0x1fff4000, 0x2);
+  REG_WRITE(0x1fff4000, 0x0);
+
+  init_pdcch_fifos();
+
+  push_fifo(&dfe_input_0_rfdata.fifo, (int)&dfe_input_0);
+  push_fifo(&dfe_input_1_rfdata.fifo, (int)&dfe_input_1);
+  push_fifo(&dfe_input_2_rfdata.fifo, (int)&dfe_input_2);
+
+  push_fifo(&scsSSB_s.fifo, (int)&scsSSB);
+  push_fifo(&symbolNum0_s.fifo, (int)&symbolNum0);
+  push_fifo(&symbolNum1_s.fifo, (int)&symbolNum1);
+  push_fifo(&symbolNum2_s.fifo, (int)&symbolNum2);
+  push_fifo(&cch_nrb_s.fifo, (int)&cch_nrb);
+  push_fifo(&csetNRB_s.fifo, (int)&csetNRB);
+  push_fifo(&csetSubcarriers_s.fifo, (int)&csetSubcarriers);
+  push_fifo(&csetDuration_s.fifo, (int)&csetDuration);
+  push_fifo(&pdcch_config_s.fifo, (int)&pdcch_config);
+  push_fifo(&c0Carrier_s.fifo, (int)&c0Carrier);
+  push_fifo(&aLevIdx_s.fifo, (int)&aLevIdx);
+  push_fifo(&cIdx_s.fifo, (int)&cIdx);
+  push_fifo(&numCand_s.fifo, (int)&numCand);
+  push_fifo(&freq0_s.fifo, (int)&freq0);
+  push_fifo(&initialInfo_s.fifo, (int)&initialInfo);
+  push_fifo(&csetPattern_s.fifo, (int)&csetPattern);
+
+  /*
+   * The generated CJSON has 19 runtime inputs in this exact order.  The
+   * dfe_input_[0..2] payloads are supplied through rfdata_t descriptors;
+   * the remaining 16 configuration payloads use stdata_t descriptors.
+   */
+  fire_dag(nrPDCCH_2p0, 19, 6,
+           &dfe_input_0_rfdata, &scsSSB_s, &symbolNum0_s,
+           &dfe_input_1_rfdata, &symbolNum1_s,
+           &dfe_input_2_rfdata, &symbolNum2_s,
+           &cch_nrb_s, &csetNRB_s, &csetSubcarriers_s,
+           &csetDuration_s, &pdcch_config_s, &c0Carrier_s,
+           &aLevIdx_s, &cIdx_s, &numCand_s, &freq0_s,
+           &initialInfo_s, &csetPattern_s,
+           &pdcchbits_s, &dci_s, &crc_result_s,
+           &pdsch_config_out_s, &pdsch_start_symbol_s,
+           &pdsch_symbol_length_s);
+  fire_dag_fence();
+
+  REG_WRITE(0x1fff4000, 0x4);
+  REG_WRITE(0x1fff4000, 0x0);
+
+  pdcchbits = (unsigned char*)pop_fifo(&pdcchbits_s.fifo);
+  dci = (unsigned char*)pop_fifo(&dci_s.fifo);
+  crc_result = (unsigned char*)pop_fifo(&crc_result_s.fifo);
+  pdsch_config_out = (unsigned char*)pop_fifo(&pdsch_config_out_s.fifo);
+  pdsch_start_symbol = (unsigned char*)pop_fifo(&pdsch_start_symbol_s.fifo);
+  pdsch_symbol_length = (unsigned char*)pop_fifo(&pdsch_symbol_length_s.fifo);
+
+  error_count = compare_output(pdcchbits, pdcchbits_expected, 128);
+  error_count += compare_output(dci, dci_expected, 64);
+  error_count += compare_output(crc_result, crc_result_expected, 2);
+  error_count += compare_output(pdsch_config_out, pdsch_config_expected, 1984);
+  error_count += compare_output(pdsch_start_symbol,
+                                pdsch_start_symbol_expected, 2);
+  error_count += compare_output(pdsch_symbol_length,
+                                pdsch_symbol_length_expected, 2);
+
+  /* GPIO3 reports completion; GPIO4 is asserted only on a mismatch. */
+  REG_WRITE(0x1fff4000, error_count ? 0x18 : 0x8);
+  REG_WRITE(0x1fff4000, 0x0);
+
+  while (1) {
+  }
+}

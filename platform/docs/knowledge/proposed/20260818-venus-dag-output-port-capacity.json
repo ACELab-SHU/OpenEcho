@@ -1,0 +1,31 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260818-venus-dag-output-port-capacity",
+  "status": "CORRECTED_PENDING_REPLAY",
+  "backend_id": "venus2p0-16x128",
+  "category": "dsl_abi",
+  "correction": "Withdraw the earlier claim that every Venus2 task output is a fixed 64-byte slot. RTL carries an independent 32-bit byte length per return and streams variable-length payloads. Sixty-four bytes is the DMA beat/alignment granularity.",
+  "proposed_rule": "Treat 16 as the current Venus2 task-output count limit, but keep output count independent from output length. Preserve one semantic tensor as one variable-length output when the active DSL, return-length field, downstream descriptor and memory limits accept it. Split outputs or use BAS concat only for a semantic boundary, a focused proven backend restriction, or a measured schedule benefit.",
+  "proposed_linter_hint": "Read max_task_outputs, task_return_length_bits, vreturn_length_unit, variable_length_outputs and DMA alignment independently from the backend contract. Reject an excessive output count or unrepresentable exact length; never impose dma_beat_bytes as a per-port payload cap.",
+  "evidence": {
+    "compiler_guard": "components/toolchain/dsl/ply/basinterp.py:815 rejects output_count > 16",
+    "rtl_sources": [
+      "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/l2_scheduler_pkg.sv:33-47",
+      "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/venus_tile_manager.sv:478-479",
+      "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/venus_task_lv_scheduler_tile_req_responder.sv:389-394",
+      "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/L2_hard_scheduler.sv:280-284",
+      "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/dma_streamer.sv:229-278"
+    ],
+    "dsl_limit": "components/toolchain/dsl/script/dsl_resource_checker.py allows a single I/O length up to 65536 bytes",
+    "generated_metadata_examples": [
+      "components/scheduler/dags/json/nrPDCCH_2p0.json contains individual 1024-byte outputs",
+      "components/scheduler/dags/json/PDSCHDag2_hw_2p0.json contains individual 14976-byte outputs"
+    ],
+    "negative_observation": "A 27-output form was rejected because it exceeded the output-count limit; that observation does not establish a 64-byte length limit."
+  },
+  "limitations": [
+    "The 16-port limit is a fact about the current DSL/compiler contract and must become backend-manifest data before it is portable to Venus3.0 or Venus4.0.",
+    "A task output that feeds another task must also fit the downstream descriptor length field and allocated temporary region.",
+    "Generated metadata and RTL inspection establish variable-length representation; retain focused Gem5/RTL regression coverage for large and narrow-tail outputs."
+  ]
+}

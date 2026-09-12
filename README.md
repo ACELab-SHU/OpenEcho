@@ -1,3 +1,18 @@
+# ACE-Echo 1.0
+
+**Venus 1.0 development on Gem5, with cycle-level simulation and measured RTL comparisons.**
+
+- [Platform source and setup](platform/README.md)
+- [Release notes and validation boundaries](platform/docs/releases/1.0.md)
+- [Public source revisions](platform/PUBLIC_SOURCE_MANIFEST.json)
+- [Project website](https://acelab-shu.github.io/ACE-Echo/)
+
+The new platform is under `platform/`. It includes pinned DSL and selected workload sources; custom compiler installations remain external prerequisites.
+
+## Legacy release
+
+The previous project documentation and source tree are retained below for existing experiments. Their setup commands belong to the legacy release.
+
 
 **Echo**
 ========

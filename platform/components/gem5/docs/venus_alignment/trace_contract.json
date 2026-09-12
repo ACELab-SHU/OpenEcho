@@ -1,0 +1,80 @@
+{
+  "schema_version": 2,
+  "status": "incremental",
+  "comparison_policy": {
+    "functional": "byte-exact; no tolerance",
+    "event_order": "sequence/port order exact unless event is explicitly abstracted",
+    "cycle": "not comparable until a fresh RTL trace records observation edges and end-to-end latency. GEM5 callbacks are now cycle-parameterized; its diagnostic dual-clock profile uses tile=2 ns and system/AXI=4 ns, but re-scaled local-memory delays are not RTL measurements."
+  },
+  "current_gem5_events": {
+    "format": "JSONL",
+    "source": "VenusDagScheduler trace_file",
+    "events": [
+      "task_ready",
+      "tile_allocated",
+      "dma_input",
+      "tile_started",
+      "task_epilogue",
+      "dma_output",
+      "tile_released",
+      "dag_complete"
+    ],
+    "required_dma_output_fields": [
+      "tick",
+      "task_id",
+      "output_port",
+      "source",
+      "bytes"
+    ],
+    "dualclock_event_domains": {
+      "tile_origin": ["task_epilogue"],
+      "scheduler_owned": ["task_ready", "tile_allocated", "dma_input", "tile_started", "dma_output", "modeled_task_timing", "tile_released", "dag_complete"],
+      "rule": "In venus-rtl-16x128-dualclock-rebase, tile-origin events are checked on 2 ns edges and scheduler-owned events on 4 ns edges. This is a GEM5 phase invariant, not an RTL CDC proof."
+    }
+  },
+  "rtl_capture_required_for_r1": {
+    "format": "JSONL or normalizable DMA log",
+    "required_events": ["task_start", "vins_issue", "vins_complete", "vreturn_dma", "task_complete"],
+    "required_vreturn_fields": ["task_id", "retid", "source", "length", "payload"],
+    "timebase_fields": ["clock_period", "cycle", "observation_edge", "clock_domain"],
+    "r1_domains_to_capture": ["tileclk/selected_block_clk", "aclk", "task-start clock-switch state"]
+  },
+  "l1_scheduler_dma_contract": {
+    "scope": "PDSCHDag2 A30 runtime-DAG scheduler boundary",
+    "manifest_version": 5,
+    "address_profile": "venus_l2_tile_v1",
+    "implemented_artifacts": [
+      "symbolic fire_plan generated only from the L1 ELF task container and global_para",
+      "symbolic return_plan generated only from output_num",
+      "rtl_observed_dma retained only as comparison evidence",
+      "tools/compare_dag_l1_plan.py for first issue-order/routing divergence"
+    ],
+    "fire_plan_rule": "code, optional nonzero data, then task descriptors in descriptor-index order; fid is runtime issue ordinal rather than a descriptor field",
+    "dynamic_dmt_rule": "type-0 source/length and type-4 packed pointer resolve only after producer return DMA completion and DMT commit; they must not be backfilled from an RTL trace into GEM5 behavior",
+    "return_rule": "retid slots are static from output_num, but tile-local source, length and DMT destination are runtime values",
+    "rtl_dma_dump_timestamp": "dma_func_wrapper samples dma_go_i; this is DMA command acceptance, not responder ACK, AXI first beat, or DMA completion",
+    "required_future_gem5_events": [
+      "fire_admit",
+      "fire_dma_complete",
+      "tile_allocate",
+      "tile_start",
+      "tile_epilogue",
+      "return_admit",
+      "return_dma_complete",
+      "dmt_commit",
+      "tile_release"
+    ],
+    "current_status": "L1 issue-order/routing is checkable; GEM5 still lacks asynchronous DMA completion/DMT-commit lifecycle, so L1 timing and L2 are not passed"
+  },
+  "first_divergence_order": [
+    "fire/return count and logical slot/descriptor order",
+    "fire routing: source space, destination tile-local address and resolved length",
+    "first inbound DMA completion or DMT commit order",
+    "return count/port presence",
+    "return source and length",
+    "first payload byte",
+    "first VINS dump element",
+    "first lifecycle/event-order difference",
+    "first cycle difference after timebase normalization"
+  ]
+}

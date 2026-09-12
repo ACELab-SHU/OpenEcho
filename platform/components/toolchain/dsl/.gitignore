@@ -1,0 +1,12 @@
+*
+!.gitignore
+!Makefile
+!block.bas
+!ply/
+!ply/*
+!script/
+!script/*
+!heft_new
+!variable
+!venus_test
+!config.mk

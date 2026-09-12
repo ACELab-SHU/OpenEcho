@@ -1,0 +1,71 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260823-venus-visible-output-oracle-and-return-register-binding",
+  "date": "2026-08-23",
+  "status": "REVIEW_REQUIRED",
+  "kind": "PORTABLE_CORRECTNESS_RULE_WITH_VENUS2_COMPILER_EVIDENCE",
+  "title": "Qualify every semantic visible output against an independent oracle and materialize returned vector values",
+  "objective": "Prevent final-output success and simulator-to-RTL self-consistency from concealing stale intermediate return ports.",
+  "rules": [
+    {
+      "id": "independent-oracle-for-semantic-visible-outputs",
+      "statement": "Before a candidate is deployable, compare every semantic visible task output covered by the frozen interface contract against the independent approved golden, not only against another execution mode of the same generated program. Gem5-fast versus Gem5-verification and Gem5 versus RTL prove execution consistency but do not independently prove algorithmic correctness.",
+      "falsification": "A byte-exact final-only contract may omit internal oracle checks only when those internal ports are explicitly diagnostic, are excluded from the frozen interface, and cannot affect downstream or reusable-operator qualification."
+    },
+    {
+      "id": "materialize-extended-vector-return-values",
+      "statement": "When a Venus task returns an extended vector under a separately claimed output name, ensure that name is written by an explicit value-producing vector operation before vreturn. Do not assume a plain C extended-vector assignment writes the physical register range later encoded for the return descriptor.",
+      "falsification": "A compiler/toolchain version may waive the explicit copy only after generated assembly and a focused multi-output probe prove that assignment and vreturn bind to the same physical rows for the exact backend/toolchain digest."
+    },
+    {
+      "id": "retain-concealed-defect-as-negative-evidence",
+      "statement": "If downstream outputs remain correct while an exported intermediate is stale, supersede the old deployable report rather than rewriting history. Preserve the old self-consistency evidence as a counterexample and bind the corrected candidate to new oracle, Gem5 and RTL receipts.",
+      "falsification": "None; this is an evidence-governance requirement."
+    }
+  ],
+  "backend_scoped_evidence": {
+    "backend": "venus2p0-16x128",
+    "workload": "OAI NR UE PDCCH/CCH post-FFT RX1/RX2/RX4",
+    "rejected_candidate": {
+      "id": "C005",
+      "self_consistency": "Gem5 fast/verification 61/61 and fresh RTL 61/61; final DCI/CRC 2/2",
+      "independent_oai_result": "10/12 semantic intermediate outputs",
+      "concealed_ports": ["MRC eq_real", "MRC eq_imag"],
+      "root_cause": "plain extended-vector assignments created SSA aliases while vreturn used the originally claimed but unwritten physical registers"
+    },
+    "corrected_candidate": {
+      "id": "C006",
+      "fix": "explicit vadd(vector,0) copies into the returned EQ values",
+      "algorithm_changed": false,
+      "dag_topology_changed": false,
+      "oai_outputs": "12/12 for RX1/RX2/RX4",
+      "gem5_outputs": "61/61 for RX1/RX2/RX4",
+      "rtl_outputs": "61/61 for RX1/RX2/RX4"
+    }
+  },
+  "evidence": [
+    "workloads/5g_lite/tasks/oai_nr_pdcch_cch_compact_product_venus2/barrier-optimization-validation-report.json",
+    "workloads/5g_lite/tasks/oai_nr_pdcch_cch_compact_product_venus2/oai-exact-multirx-validation-report.json",
+    "runs/cch-barrier-integrated-rx1-fast-a001/oai-intermediate-compare.json",
+    "runs/cch-oai-exact-c006-rx1-fast-a001/oai-intermediate-compare.json",
+    "runs/cch-oai-exact-c006-rtl-rx1-a001/artifacts/rtl-all-visible-ports-compare.json"
+  ],
+  "non_transferable_items": [
+    "the PDCCH E=864/N=512/K=63 shape",
+    "the 61-port DAG boundary",
+    "the vadd(vector,0) instruction choice for future compiler versions",
+    "the measured cycle values"
+  ],
+  "promotion_conditions": [
+    "Human review",
+    "A focused compiler probe that records source, generated assembly and physical return rows",
+    "An exact shadow patch against the then-current programming contract and skill digests",
+    "Regression tests that reject a final-correct but intermediate-stale candidate"
+  ],
+  "shadow_patch": {
+    "status": "NOT_GENERATED",
+    "reason": "The workload evidence is complete, but portable skill and live-knowledge promotion requires explicit human scope review."
+  },
+  "rollback": "Remove this proposal and its index entries; keep C005 negative evidence and C006 workload qualification unchanged.",
+  "vemu_used": false
+}

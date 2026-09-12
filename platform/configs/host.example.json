@@ -1,0 +1,5 @@
+{
+  "schema": "ace-echo-host-tools/v1",
+  "venus_llvm_bin": "/opt/venus-llvm/bin",
+  "riscv_gcc_root": "/opt/riscv32im"
+}

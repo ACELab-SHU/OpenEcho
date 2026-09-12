@@ -1,0 +1,60 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260822-venus2-wide-value-task-isolation",
+  "date": "2026-08-22",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Prefer explicit value parameters and isolated single-component tasks when Venus2 wide-vector RTL transport is unproven",
+  "backend": "venus2p0-16x128",
+  "rtl_repository": "/home/shenyihao/Project/Venus_3/venus_soc",
+  "rtl_commit": "bf82d804968672e04db31d105876092d78969b0e",
+  "proposed_rule": "For a Gem5-correct Venus2 task that depends on task-local DSPM vector scratch, repeated aliases of one wide input, or multiple simultaneous wide accumulation/return chains, do not infer RTL safety from a barrier or from the first correct output. First prefer scheduler-loaded immutable value parameters and register-only operations. If the combined task still has an RTL-only second-chain failure, split it into a reusable single-component task and compare every visible output. Treat this as a backend-scoped search rule, not a universal Venus language restriction.",
+  "scope": "Venus2 tasks with 448-lane i16 inputs/outputs, task-local vector scratch, repeated wide arguments or parallel component chains",
+  "evidence": {
+    "workload": "workloads/5g_lite/tasks/oai_nr_pbch_rx_vector_product_venus2",
+    "negative_candidates": [
+      {
+        "run": "runs/oai-nr-pbch-rx-vector-product-rtl-probe-a007",
+        "observation": "ABI input materialization and vstore dumps were correct, but the dependent task-local DSPM vload returned zero and task 3 was the first failing boundary.",
+        "disposition": "REJECTED_NOT_RTL_ELIGIBLE"
+      },
+      {
+        "run": "runs/oai-nr-pbch-rx-vector-product-rtl-probe-a008",
+        "observation": "The pure-VRF transport task passed, while the next frontend task loaded scalar-built DSPM interpolation maps as zero; task 4 was the first failing boundary.",
+        "disposition": "REJECTED_NOT_RTL_ELIGIBLE"
+      },
+      {
+        "run": "runs/oai-nr-pbch-rx-vector-product-rtl-probe-a009",
+        "observation": "Explicit scheduler-loaded interpolation maps made the first real accumulation output exact, but the paired imaginary accumulation output contained 864 unknown bytes and all downstream outputs failed.",
+        "comparison": "runs/oai-nr-pbch-rx-vector-product-rtl-probe-a009/rtl-return-comparison.json",
+        "disposition": "REJECTED_NOT_RTL_ELIGIBLE"
+      }
+    ],
+    "qualified_candidate": {
+      "implementation": "Task_nrOaiPbchInterpAccumulateComponentVector plus explicit BAS interpolation/Gold parameters",
+      "gem5_fast": "runs/oai-nr-pbch-rx-vector-product-fast-a026",
+      "gem5_verification": "runs/oai-nr-pbch-rx-vector-product-verification-a011",
+      "fresh_rtl": "runs/oai-nr-pbch-rx-vector-product-rtl-a004",
+      "gem5_visible_outputs_exact": "57/57",
+      "rtl_visible_outputs_exact": "57/57",
+      "rtl_unknown_bytes": 0,
+      "gem5_tile_cycles": 67408,
+      "rtl_max_task_cycles": 14040
+    }
+  },
+  "implementation_proposal": [
+    "Add a static warning for task-local DSPM addresses consumed by vector vload/vstore when no backend qualification receipt is attached.",
+    "Flag repeated wide BAS arguments and multiple wide returns as RTL-isolation search candidates, not compile errors.",
+    "Require per-port RTL comparison, including unknown-byte accounting, before accepting the combined task.",
+    "Allow single-component task splitting only when measured whole-DAG performance remains within its frozen gate."
+  ],
+  "validation_before_promotion": [
+    "Build reduced positive and negative probes that isolate repeated-argument delivery from dual-return register pressure.",
+    "Repeat the DSPM scratch round-trip probe on an independent task and at least one additional RTL digest.",
+    "Confirm that the proposed warning does not reject the already qualified PDCCH scratch patterns that have direct fresh-RTL evidence."
+  ],
+  "promotion_gate": "REVIEW_REQUIRED; this proposal does not edit live knowledge and cannot self-promote",
+  "rtl_change_required": false,
+  "scheduler_change_required": false,
+  "vemu_used": false,
+  "rollback": "Remove the proposed static warning/search heuristic. The qualified PBCH single-component DAG and its immutable RTL evidence remain valid."
+}

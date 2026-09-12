@@ -1,0 +1,5 @@
+RUBY=y
+PROTOCOL="MI_example"
+RUBY_PROTOCOL_MI_example=y
+BUILD_ISA=y
+USE_SPARC_ISA=y

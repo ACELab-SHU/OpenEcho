@@ -1,0 +1,11 @@
+{
+  "schema": "ace-echo-host-paths/v1",
+  "toolchains": {
+    "shared": {
+      "venus_llvm_bin": "/opt/venus-llvm/bin",
+      "riscv_gcc_root": "/opt/riscv32im",
+      "scheduler_cross_prefix": "/opt/scheduler/bin/riscv32-unknown-linux-gnu-"
+    }
+  },
+  "rtl": {}
+}

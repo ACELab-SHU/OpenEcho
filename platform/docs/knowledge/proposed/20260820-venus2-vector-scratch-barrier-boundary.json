@@ -1,0 +1,101 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260820-venus2-vector-scratch-barrier-boundary",
+  "date": "2026-08-20",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Distinguish removable register-only barriers from required Venus2 vector-scratch visibility fences",
+  "backend": "venus2p0-16x128",
+  "rtl_repository": "/home/shenyihao/Project/Venus_3/venus_soc",
+  "rtl_commit": "bf82d804968672e04db31d105876092d78969b0e",
+  "proposed_rule": "A vbarrier is not justified merely by adjacency of vector arithmetic or by vreturn. Remove register-only and terminal barriers as isolated candidates, then revalidate every visible output. Retain and classify a backend_workaround barrier when a vector scratch vstore is followed by a dependent vload on Venus2 unless a focused positive/negative Gem5 and RTL probe proves that exact dependency safe without the fence. vaddr scalar access keeps its existing vaddr_scalar_access barrier classification.",
+  "prompt": "Classify every barrier before optimization. Is it guarding vaddr/VSPM scalar access, a measured vector-scratch store-to-load visibility boundary, or neither? Remove only one barrier class per candidate. Compare every pinned task output to the accepted baseline; a downstream final-output match alone is insufficient. Send only the correctness-qualified winner to fresh RTL.",
+  "scope": "Venus2 C tasks with register-only vector dependencies, task returns, vaddr scalar access, or vector scratch store-to-dependent-load chains",
+  "base_knowledge_digests": {
+    "docs/knowledge/foundations/venus-user-guide.md": "c58f5e1184385232bbcce0ebd0c7eb6805d4b56e2cda9e63812ec1dec81c6cbe",
+    ".agents/skills/ace-echo-venus-forge/references/venus-operator-development.md": "33a8e10c395346754ce0bdb9c11e0b8e3feeb7840e38596f6c13ab53070874f3",
+    ".agents/skills/ace-echo-venus-forge/references/performance-search.md": "4a9d9e081786d64536ee676f48571d684af0c1377b47168d8b8f705b1fa98cb6",
+    ".agents/skills/ace-echo-venus-forge/SKILL.md": "f26c27deab1cee4f023a09eee96547f7ecbd19a5c0263b705076f74e2bf6c713"
+  },
+  "evidence": {
+    "workload": "workloads/5g_lite/tasks/oai_nr_pdcch_cch_compact_product_venus2",
+    "source_set_sha256": "e9b1f859cb974676003b72cc180f1c5d55fb6e03614935dc29d0226d3a922827",
+    "baseline": {
+      "run": "runs/cch-barrier-b000-rx1-fast-a002",
+      "comparison_sha256": "5756e118b8a00c5b6aa4ffa8a2d0177baffe8ae290f5a2081107484a596326bf",
+      "visible_outputs_exact": "61/61",
+      "cycles": 79106,
+      "instructions": 26434
+    },
+    "positive_candidates": [
+      {
+        "id": "C001",
+        "hypothesis": "Remove register-only barriers in the four branch tasks; retain the vaddr scalar-access fence",
+        "comparison": "runs/cch-barrier-c001-rx1-fast-a001/all-visible-ports-vs-baseline.json",
+        "comparison_sha256": "d466b97c0e98deeff2b9fdebfde80aa409969170e663bcf39dcbe4d4ddf230e5",
+        "visible_outputs_exact": "61/61",
+        "cycles": 78355,
+        "instructions": 26082
+      },
+      {
+        "id": "C002",
+        "hypothesis": "Remove register-only MRC barriers; retain the metadata vaddr scalar-access fence",
+        "comparison": "runs/cch-barrier-c002-rx1-fast-a001/all-visible-ports-vs-c001.json",
+        "comparison_sha256": "0c2549f2419d99e0fad620a0e884d203633ab30c84d7f4ff982da03c05bbef2d",
+        "visible_outputs_exact": "61/61",
+        "cycles": 78273,
+        "instructions": 26060
+      },
+      {
+        "id": "C003",
+        "hypothesis": "Remove barriers immediately before vreturn while retaining scalar-access fences",
+        "comparison": "runs/cch-barrier-c003-rx1-fast-a001/all-visible-ports-vs-c002.json",
+        "comparison_sha256": "323ab8f1855a21e07dc699bce1cbb810f9a035cf8f4ae97276c2463ad61f9830",
+        "visible_outputs_exact": "61/61",
+        "cycles": 78241,
+        "instructions": 26016
+      }
+    ],
+    "negative_counterexample": {
+      "id": "C004",
+      "hypothesis": "Remove every Polar barrier, including vector scratch store-to-dependent-load fences",
+      "comparison": "runs/cch-barrier-c004-rx1-fast-a001/all-visible-ports-vs-c003.json",
+      "comparison_sha256": "e012a8c0d4b09e800890627399bb6f30ed3ef72eb50ab71c6ed95146d6d14eec",
+      "visible_outputs_exact": "57/61",
+      "first_mismatch": "Task 9 port 3, 128 bytes",
+      "downstream_mismatches": ["Task 12 port 0", "Task 13 port 0", "Task 13 port 1"],
+      "disposition": "REJECTED_NOT_RTL_ELIGIBLE"
+    },
+    "integrated_winner": {
+      "id": "C005",
+      "hypothesis": "Remove Polar register-output and terminal barriers but retain named scratch visibility fences",
+      "gem5_comparison": "runs/cch-barrier-integrated-rx1-verification-a001/all-visible-ports-compare.json",
+      "gem5_comparison_sha256": "769ba29f2c703b1a87ab4b158f1c37ad4e799772e59b09aaf77bea9c27243a6c",
+      "rtl_comparison": "runs/cch-barrier-integrated-rtl-a001/artifacts/rtl-all-visible-ports-compare.json",
+      "rtl_comparison_sha256": "d0236dbfd32502d4345eecf9c9c27cd3f8971f3b40d9aad66c32f7adb69fc31f",
+      "gem5_visible_outputs_exact": "61/61",
+      "rtl_visible_outputs_exact": "61/61",
+      "final_outputs_exact_to_golden": "2/2",
+      "cycles": 78134,
+      "instructions": 25939,
+      "cycle_reduction_percent_vs_baseline": 1.228731070,
+      "instruction_reduction_percent_vs_baseline": 1.872588333
+    }
+  },
+  "implementation_proposal": [
+    "Extend the static barrier gate to require one of vaddr_scalar_access or backend_workaround on every barrier or named wrapper",
+    "Recognize register-only vector dependency barriers and terminal-before-vreturn barriers as performance-search candidates, never as unconditional removals",
+    "Recognize Venus2 vector scratch vstore-to-dependent-vload chains as backend_workaround candidates requiring a focused counterexample receipt",
+    "Require all pinned intermediate outputs plus final golden outputs to pass after every barrier mutation",
+    "Require the integrated winner to pass fresh immutable-RTL validation before accepting the workload optimization"
+  ],
+  "validation_before_promotion": [
+    "Replay the accepted C005 positive case and the C004 negative counterexample from immutable artifacts",
+    "Add at least one reduced scratch dependency probe and one independent workload or Polar shape",
+    "Run Gem5 fast, Gem5 verification, and fresh RTL for each promoted positive case",
+    "Bind human acceptance to this proposal digest, the shadow patch digest, and the frozen base knowledge digests"
+  ],
+  "promotion_gate": "REVIEW_REQUIRED; this proposal does not edit live knowledge and cannot self-promote",
+  "rtl_change_required": false,
+  "gem5_change_required": false,
+  "rollback": "Remove the proposed static classification/search rule. The qualified CCH workload remains valid because its retained scratch fences and immutable RTL receipt are independent evidence."
+}

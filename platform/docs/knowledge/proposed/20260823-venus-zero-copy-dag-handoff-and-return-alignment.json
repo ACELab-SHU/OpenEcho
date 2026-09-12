@@ -1,0 +1,84 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260823-venus-zero-copy-dag-handoff-and-return-alignment",
+  "date": "2026-08-23",
+  "status": "REVIEW_REQUIRED",
+  "kind": "PORTABLE_DAG_PERFORMANCE_AND_RTL_VERIFICATION_RULE_WITH_BACKEND_SCOPED_EVIDENCE",
+  "title": "Fuse large producer/consumer handoffs and align asynchronous RTL returns by launch-local identity",
+  "objective": "Prevent Scheduler scalar copies from dominating vector DAGs and prevent correct parallel RTL returns from being rejected solely because tiles complete out of order.",
+  "rules": [
+    {
+      "id": "prefer-value-dependencies-over-scalar-handoff",
+      "statement": "When a Venus producer and consumer are compatible in one BAS DAG, connect physical task returns to consumer inputs through direct value dependencies and concat. Treat a payload-sized Scheduler byte/word copy as a rejected performance candidate unless measured end-to-end evidence proves it acceptable.",
+      "falsification": "Retain a separate Scheduler handoff when fusion violates backend limits, changes visible fixed-point checkpoints, increases the winning end-to-end latency, or requires unsupported address lifetimes."
+    },
+    {
+      "id": "reuse-qualified-task-sources",
+      "statement": "A fused graph should reference already-qualified task source files through the toolchain task-source manifest. Do not duplicate operator C merely to place it in a new DAG directory.",
+      "falsification": "A specialization is allowed only when its distinct source is required by measured performance or bit-exactness and is independently qualified."
+    },
+    {
+      "id": "align-rtl-returns-within-launch",
+      "statement": "For a sequence of Scheduler DAG launches, preserve launch order but match returns inside each launch by (task_id, return_port), not by DMA arrival or task-completion order. Record the original sequence index for audit.",
+      "falsification": "Reject alignment if the launch has duplicate keys, missing keys, unexpected keys, an ambiguous boundary, unknown bytes, or any payload/length mismatch after identity alignment."
+    },
+    {
+      "id": "retain-all-visible-output-gate",
+      "statement": "Identity alignment changes only comparison ordering. Qualification still requires every visible return, byte, task completion and final OAI output to match, plus successful RTL completion markers and exit status.",
+      "falsification": "Any aligned data mismatch or missing completion rejects the candidate."
+    }
+  ],
+  "backend_scoped_evidence": {
+    "backend": "venus2p0-16x128",
+    "workload": "OAI NR UE canonical RX1 PBCH time-domain fused application",
+    "approved_golden_digest": "093836a9fd7344173d134a24efb5163c14ed936c249d1c60634899558b782dd6",
+    "rejected_scalar_handoff": {
+      "run": "runs/oai-nr-pbch-time-domain-vector-rtl-a003",
+      "payload_bytes": 9600,
+      "symptom": "FFT and pack completed, then the Scheduler scalar shared-SRAM copy dominated wall time and never launched the product within the retained run"
+    },
+    "qualified_fused_handoff": {
+      "component": "workloads/5g_lite/tasks/oai_nr_pbch_fep_rx1_vector_product_venus2",
+      "scheduler_scalar_intermediate_bytes": 0,
+      "gem5_tile_cycles": 70738,
+      "gem5_visible_outputs_exact": "63/63",
+      "fresh_rtl": "runs/oai-nr-pbch-time-domain-fused-rtl-a004",
+      "rtl_task_completions": "101/101",
+      "rtl_visible_outputs_exact": "135/135",
+      "rtl_bytes_exact": 108296,
+      "rtl_unknown_bytes": 0,
+      "rtl_max_task_cycles": 319167
+    },
+    "return_order_example": {
+      "launch": "symbol1_stage01",
+      "expected_task_order": [0, 1, 2, 3],
+      "rtl_dma_arrival_order": [1, 0, 3, 2],
+      "result": "all four payload SHA256 values match their launch-local task identities exactly"
+    }
+  },
+  "evidence": [
+    "workloads/5g_lite/tasks/oai_nr_pbch_fep_rx1_vector_product_venus2/validation-report.json",
+    "runs/oai-nr-pbch-time-domain-fused-rtl-a004/rtl-return-comparison.json",
+    "runs/oai-nr-pbch-time-domain-fused-rtl-a004/artifacts/rtl-performance-summary.json",
+    "workloads/5g_lite/applications/oai_nr_ue_rx_venus2/verify_pbch_time_domain_vector_rtl_returns.py"
+  ],
+  "non_transferable_items": [
+    "absolute shared-SRAM addresses",
+    "the 9600-byte PBCH payload size",
+    "the observed task completion permutation",
+    "the 1000000-cycle workload gate",
+    "the measured Gem5 and RTL cycle values"
+  ],
+  "promotion_conditions": [
+    "Human review",
+    "A second multi-tile DAG showing the same launch-local return-order behavior",
+    "A second producer/consumer workload showing a large scalar handoff replaced by exact BAS dependencies",
+    "An exact shadow patch against the then-current skill and knowledge digests"
+  ],
+  "shadow_patch": {
+    "status": "NOT_GENERATED",
+    "reason": "This turn records workload evidence only; portable skill promotion requires the stated second workload and explicit human review."
+  },
+  "rollback": "Remove this proposal and its index entries; workload code and immutable evidence remain valid.",
+  "vemu_used": false
+}
