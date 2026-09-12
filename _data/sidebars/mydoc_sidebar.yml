@@ -3,7 +3,7 @@
 entries:
 - title: sidebar
   product: Echo
-  version: v0.1-Beta
+  version: 1.0
   folders:
 
   - title:
@@ -38,7 +38,15 @@ entries:
     output: web, pdf
     folderitems:
 
-    - title: Get started
+    - title: Get started — Venus 1.0
+      url: /venus1_get_started.html
+      output: web, pdf
+
+    - title: Venus1 validation
+      url: /venus1_validation.html
+      output: web, pdf
+
+    - title: Legacy setup
       url: /mydoc_get_started.html
       output: web, pdf
 
