@@ -6,7 +6,7 @@ topnav:
     - title: GitHub
       external_url: https://github.com/ACELab-SHU/ACE-Echo
     - title: Home
-      url: /mydoc_get_started.html
+      url: /index.html
     - title: News
       url: /news
 
