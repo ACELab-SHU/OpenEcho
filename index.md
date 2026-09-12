@@ -1,184 +1,32 @@
 ---
-title: Echo
-#tags: [getting_started, troubleshooting]
-keywords: Echo, Venus, AURA, Feature, Email, Community
-summary: "What is Echo?"
-sidebar: mydoc_sidebar
+title: ACE-Echo 1.0
+layout: echo-home
 permalink: index.html
-folder: mydoc
-hide_sidebar: true
-hide_summary: true
-hide_title: true
-toc: false
 ---
 
-<section class="echo-home">
-  <div class="hero-grid">
-    <div class="hero-copy">
-      <p class="eyebrow">Open Platform for Communication-AI Convergence Fusion</p>
-      <h1>Echo</h1>
-      <p class="hero-summary">Echo is an open-source development platform built on <strong>Venus</strong>, our RISC-V processor designed for communication-AI fusion. Echo empowers developers to build, test, and deploy next-generation applications where signal processing meets intelligent computation.</p>
-      <div class="hero-actions">
-        <a class="hero-button primary" href="mydoc_get_started.html">Get Started</a>
-        <a class="hero-button secondary" href="news.html">Latest Updates</a>
-      </div>
-    </div>
-    <div class="hero-panel">
-      <p class="panel-kicker">Echo includes</p>
-      <ul class="hero-list">
-        <li>Communication &amp; AI operators for FFT, Decoder, Conv2D/3D, GELU/SiLU and more</li>
-        <li>A full toolchain: compiler, debugger and hardware simulator</li>
-        <li>Functional &amp; Performance Simulator: simulates Venus workloads and outputs latency and throughput estimation</li>
-        <li>Real-world application demos: 5G/LTE, AI-Based Channel Estimation, GNSS, LoRa, and more</li>
-        <li>Comprehensive documentation &amp; tutorials</li>
-      </ul>
-    </div>
-  </div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="index.html" aria-label="ACE-Echo home"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 2 33 10.5v15L18 34 3 25.5v-15Z" fill="#275ee8"/><path d="M11 11h15M11 18h11M11 25h15" fill="none" stroke="white" stroke-width="3"/></svg>ACE-Echo <small>1.0</small></a><nav class="nav-links" aria-label="Main navigation"><a href="#platform">Platform</a><a href="#validation">Validation</a><a href="venus1_get_started.html">Docs</a><a class="nav-source" href="https://github.com/ACELab-SHU/ACE-Echo">GitHub ↗</a></nav></header>
+<main id="main">
+<section class="wrap hero" aria-labelledby="hero-title"><div><p class="eyebrow">ACE-Echo 1.0 / Built for Venus 1.0</p><h1 id="hero-title">From a DAG to<br><span>cycle-level<br>insight.</span></h1><p class="lead">A Gem5-based development platform for communication workloads on Venus. Turn C and BAS into executable graphs, inspect data movement, and compare with RTL.</p><div class="actions"><a class="button primary" href="venus1_get_started.html">Start building <span aria-hidden="true">→</span></a><a class="button" href="#validation">Explore the results <span aria-hidden="true">↗</span></a></div><p class="micro">RISC-V + Venus extensions · C / BAS · Gem5</p></div>
+<div class="lab-card"><div class="lab-top"><span>VENUS 1.0 / EXECUTION FLOW</span><span><i class="status-dot" aria-hidden="true"></i>GEM5 MODEL</span></div><div class="schematic"><svg viewBox="0 0 460 325" role="img" aria-labelledby="diagram-title diagram-desc"><title id="diagram-title">From source to a measured Venus workload</title><desc id="diagram-desc">C and BAS compile to artifacts, run on the Gem5 Venus model and produce RTL comparison evidence. An illustrative workflow, not a live simulation.</desc><defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 6 3 0 6" fill="none" stroke="#829bb6"/></marker></defs><path class="flow-line" marker-end="url(#arrow)" d="M191 54H263M348 82V111H230V127M230 225V263"/><path class="flow-line flow-pulse" d="M191 54H253M348 82V111H230V123M230 225V258"/>
+<rect class="stage-node node-active" data-node="0" x="19" y="25" width="172" height="57" rx="5" fill="#fff" stroke="#b5c5d7"/><text x="35" y="46" fill="#667e96" font-size="9">01 / AUTHOR</text><text x="35" y="67" fill="#142b47" font-size="15">C + BAS</text>
+<rect class="stage-node" data-node="1" x="268" y="25" width="173" height="57" rx="5" fill="#fff" stroke="#b5c5d7"/><text x="284" y="46" fill="#667e96" font-size="9">02 / COMPILE</text><text x="284" y="67" fill="#142b47" font-size="15">JSON + BIN</text>
+<rect class="stage-node" data-node="2" x="55" y="129" width="350" height="96" rx="6" fill="#f3f6fb" stroke="#aabed5"/><text x="73" y="151" fill="#142b47" font-size="11">VENUS TILE</text><text x="385" y="151" fill="#667e96" font-size="9" text-anchor="end">03 / SIMULATE</text>
+<rect x="73" y="166" width="99" height="40" rx="3" fill="#275ee8"/><text x="122.5" y="190" fill="#fff" font-size="11" text-anchor="middle">Vector</text><rect x="181" y="166" width="61" height="40" rx="3" fill="#e1e8f2"/><text x="211.5" y="190" fill="#142b47" font-size="11" text-anchor="middle">Scalar</text><rect x="251" y="166" width="61" height="40" rx="3" fill="#e1e8f2"/><text x="281.5" y="190" fill="#142b47" font-size="11" text-anchor="middle">SPM</text><rect x="321" y="166" width="66" height="40" rx="3" fill="#e1e8f2"/><text x="354" y="190" fill="#142b47" font-size="11" text-anchor="middle">DMA</text>
+<text x="252" y="249" fill="#6b8098" font-size="9">task timing + outputs</text><rect class="stage-node" data-node="3" x="115" y="268" width="230" height="44" rx="5" fill="#fff" stroke="#b5c5d7"/><circle cx="136" cy="290" r="5" fill="#cf5a33"/><text x="151" y="294" fill="#142b47" font-size="11">04 / RTL COMPARISON</text></svg><p class="illustration-label">WORKFLOW SCHEMATIC · SELECT A STAGE BELOW</p></div><div class="stage-tabs" role="tablist" aria-label="Explore the development workflow"><button id="stage-0" data-stage="0" role="tab" aria-selected="true" aria-controls="stage-panel" tabindex="0">01 Author</button><button id="stage-1" data-stage="1" role="tab" aria-selected="false" aria-controls="stage-panel" tabindex="-1">02 Compile</button><button id="stage-2" data-stage="2" role="tab" aria-selected="false" aria-controls="stage-panel" tabindex="-1">03 Simulate</button><button id="stage-3" data-stage="3" role="tab" aria-selected="false" aria-controls="stage-panel" tabindex="-1">04 Compare</button></div><div class="stage-panel" id="stage-panel" role="tabpanel" aria-labelledby="stage-0"><h3>Describe the computation</h3><p>Express Venus tasks in C and their dependencies in BAS. Keep algorithms, inputs and interfaces explicit.</p><code>Venus C + BAS → tasks + dependencies</code></div></div></section>
+<div class="wrap metric-strip" aria-label="Regression overview"><p class="metric-intro"><strong>Measured against fresh RTL.</strong>Venus 1.0 regression · September 2026</p><div class="metric"><strong>8</strong><small>DAGs compared</small></div><div class="metric"><strong>202</strong><small>tasks executed</small></div><div class="metric"><strong>0.464<span style="font-size:.6em">%</span></strong><small>max. DAG interval deviation</small></div></div>
+<section class="wrap section" id="platform" aria-labelledby="platform-title"><div class="section-head"><div><p class="eyebrow">One connected development flow</p><h2 id="platform-title">Build. Observe.<br>Understand.</h2></div><p>Keep the computation, the hardware model and the evidence connected—from a single operator to a complete dataflow graph.</p></div><div class="feature-grid">
+<article class="feature"><p class="number">01 — PROGRAMMING</p><h3>Express the dataflow.</h3><p>Write Venus C tasks and describe dependencies in BAS. Compile task images, data and DAG metadata into a reproducible set of artifacts.</p><div class="tags"><span>Venus C</span><span>BAS / DSL</span><span>Custom LLVM</span></div></article><article class="feature"><p class="number">02 — SIMULATION</p><h3>See where cycles go.</h3><p>Run Venus 1.0 workloads in Gem5. Inspect task execution and transfers with explicit clock domains, timing boundaries and retained traces.</p><div class="tags"><span>Gem5 fast</span><span>Task / DAG</span><span>DMA timing</span></div></article><article class="feature"><p class="number">03 — VALIDATION</p><h3>Make results inspectable.</h3><p>Pair source and firmware identities with output comparisons and fresh RTL measurements. Separate execution, numerical correctness and timing claims.</p><div class="tags"><span>Output comparison</span><span>RTL reference</span><span>Evidence</span></div></article>
+</div><div class="architecture"><div><p class="eyebrow">Powered by Venus</p><h3>Designed around<br>communication workloads.</h3><p>Venus combines RISC-V processing, vector execution and dataflow scheduling within the AURA architecture.</p><p style="margin-top:17px"><a href="https://doi.org/10.1145/3658617.3697558">Read the architecture paper ↗</a></p></div><div class="arch-stack"><div class="arch-row"><span>Communication workloads</span><span>5G NR / LTE</span></div><div class="arch-row"><span>ACE-Echo development platform</span><span>COMPILE / RUN / COMPARE</span></div><div class="arch-row"><span>Venus 1.0 model in Gem5</span><span>TILE / SCHEDULER / DMA</span></div><div class="arch-row"><span>Independent RTL reference</span><span>MATCHED BOUNDARIES</span></div></div></div></section>
+<section class="bench-section" id="validation" aria-labelledby="validation-title"><div class="wrap section"><div class="section-head"><div><p class="eyebrow">Measured, with context</p><h2 id="validation-title">The numbers.<br>And what they mean.</h2></div><p>Eight fresh RTL runs paired with Gem5 fast. All known bits match across 557 returned outputs; unknown RTL bits remain explicitly unverified.</p></div><div class="bench-controls"><div class="filters" role="group" aria-label="Filter benchmark family"><button data-filter="all" aria-pressed="true">All workloads</button><button data-filter="nr" aria-pressed="false">5G NR</button><button data-filter="lte" aria-pressed="false">LTE</button></div><p id="result-count" aria-live="polite">8 DAGs · Venus 1.0 · fast mode</p></div><div class="table-scroll"><table class="results"><caption class="skip">Gem5 DAG interval error relative to RTL; positive means Gem5 takes longer.</caption><thead><tr><th scope="col">Workload</th><th scope="col">Tasks</th><th scope="col">Family</th><th scope="col">(Gem5 − RTL) / RTL</th></tr></thead><tbody><tr data-family="nr"><td>nrPBCH</td><td>19</td><td>5G NR</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="" style="width:max(2px,3.55%)"></i></span><span class="error-value">−0.0355%</span></div></td></tr>
+<tr data-family="nr"><td>nrPDCCH</td><td>24</td><td>5G NR</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="" style="width:max(2px,16.04%)"></i></span><span class="error-value">−0.1604%</span></div></td></tr>
+<tr data-family="lte"><td>ltePBCHDag1_hw</td><td>27</td><td>LTE</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="positive" style="width:max(2px,0.21%)"></i></span><span class="error-value">+0.0021%</span></div></td></tr>
+<tr data-family="lte"><td>ltePBCHDag2_hw</td><td>58</td><td>LTE</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="positive" style="width:max(2px,5.84%)"></i></span><span class="error-value">+0.0584%</span></div></td></tr>
+<tr data-family="lte"><td>ltePCFICH</td><td>7</td><td>LTE</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="" style="width:max(2px,40.26%)"></i></span><span class="error-value">−0.4026%</span></div></td></tr>
+<tr data-family="lte"><td>ltePDCCHDag1_hw</td><td>9</td><td>LTE</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="positive" style="width:max(2px,46.33%)"></i></span><span class="error-value">+0.4633%</span></div></td></tr>
+<tr data-family="lte"><td>ltePDCCHDag2_hw</td><td>6</td><td>LTE</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="" style="width:max(2px,14.219999999999999%)"></i></span><span class="error-value">−0.1422%</span></div></td></tr>
+<tr data-family="lte"><td>ltePDSCH</td><td>52</td><td>LTE</td><td><div class="error-cell"><span class="bar-axis" aria-hidden="true"><i class="" style="width:max(2px,3.47%)"></i></span><span class="error-value">−0.0347%</span></div></td></tr></tbody></table></div><p class="bench-note">Interval: first task execution start → last task completion, including inter-task transfers. Boot, initial loading and final return DMA are excluded. Nominal clocks: Tile 300 MHz / AXI 150 MHz. The largest individual task deviation is 2.2834%.</p><details class="method"><summary>Measurement method and current validation scope</summary><div class="method-content"><p><strong>What was measured.</strong> Eight DAGs, 202 tasks and 557 returns, using matching firmware and a fresh RTL simulator. All 3,128 RTL transfers match by ordered direction, Tile address and length after accounting for extra Gem5 code loads. See the <a href="venus1_validation.html">full regression summary</a>.</p><p><strong>What remains open.</strong> The L1 contract engine does not execute the full scalar Scheduler firmware. RTL X bits, independent algorithm golden checks, dynamic DMT allocation and code-transfer reuse remain separate validation topics. These results are specific to the measured inputs, not a claim of universal or cycle-for-cycle equivalence.</p></div></details></div></section>
+<section class="wrap section get-started" id="get-started" aria-labelledby="start-title"><div><p class="eyebrow">Start with a reproducible setup</p><h2 id="start-title">Your next<br>experiment starts here.</h2><p>The platform is open. The Venus-custom LLVM compiler and a compatible RISC-V toolchain are external prerequisites. RTL comparison additionally requires an authorized RTL and EDA environment.</p><div class="actions"><a class="button primary" href="venus1_get_started.html">Read the 1.0 setup guide <span aria-hidden="true">→</span></a></div></div><div><ol class="steps"><li><div><h3>Get the platform source.</h3><p>The 1.0 source lives in <code>platform/</code>. Use the bundled, revision-pinned Venus1 samples and DSL frontend.</p></div></li><li><div><h3>Configure your tools.</h3><p>Set host-local tool paths and select Venus 1.0. Build this checkout’s Gem5 model with the <a href="venus1_get_started.html">setup guide</a>.</p></div></li><li><div><h3>Run. Inspect. Iterate.</h3><p>Begin with the setup smoke example, then compile a DAG and inspect execution traces before moving to hardware comparison.</p></div></li></ol><div class="code-block"><pre id="clone-command">git clone https://github.com/ACELab-SHU/ACE-Echo.git&#10;cd ACE-Echo/platform</pre><button class="copy" id="copy-command" aria-label="Copy clone command">Copy</button></div><div class="copy-status" id="copy-status" role="status"></div></div></section>
+<section class="wrap join" aria-labelledby="join-title"><div><h2 id="join-title">Build the next communication workload.</h2><p>Explore the code, reproduce a result, or contribute an operator.</p></div><a class="button" href="https://github.com/ACELab-SHU/ACE-Echo">Explore on GitHub <span aria-hidden="true">↗</span></a></section></main>
+<footer class="wrap footer"><div><strong>ACE Lab · Shanghai University</strong><span>ACE-Echo 1.0 · Communication–AI research and development</span></div><div class="footer-links"><a href="venus1_get_started.html">Documentation</a><a href="https://github.com/ACELab-SHU/ACE-Echo">Source</a><a href="mailto:shenyihao@shu.edu.cn">Contact</a></div><span>© 2026 ACE Lab</span></footer>
 
-  <section class="section-block">
-    <div class="section-heading">
-      <p class="section-tag">Architecture</p>
-      <h2>Powered by AURA Architecture &amp; Venus Chip</h2>
-    </div>
-    <div class="stack-grid">
-      <article class="stack-card">
-        <p class="stack-title">AURA: AI Unified Radio Architecture</p>
-        <p>AURA is the foundational computing architecture behind Echo. It is designed for <strong>tight integration of perception, communication, and computation</strong>, optimized for edge and low-latency scenarios. It is composed of Venus Language, Zoozve Compiler, and Mathematic Libraries.</p>
-        <p>If you want to learn more about compilers, see <a href="https://dl.acm.org/doi/abs/10.1145/3735452.3735526.html">Zoozve: A Strip-Mining-Free RISC-V Vector Extension with Arbitrary Register Grouping Compilation Support (WIP)</a>.</p>
-        <div class="visual-frame">
-          {% include image.html file="ComputingArchitecture.png" max-width='600' %}
-        </div>
-      </article>
-      <article class="stack-card">
-        <p class="stack-title">Venus: Our RISC-V Communication-AI Chip</p>
-        <p>Venus is a custom RISC-V processor based on the AURA architecture.</p>
-        <ul class="feature-list">
-          <li>Instruction set extensions for communication and neural workloads</li>
-          <li>Built-in accelerators such as the vector engine</li>
-          <li>Composed of Venus Tile, Venus Scheduler, and Venus DFE</li>
-          <li>Ideal for 5G/6G, GNSS, LoRa, edge AI, V2X, and more</li>
-        </ul>
-        <p>For details, see <a href="https://dl.acm.org/doi/abs/10.1145/3658617.3697558.html">A Hierarchical Dataflow-Driven Heterogeneous Architecture for Wireless Baseband Processing</a>.</p>
-        <div class="visual-frame">
-          {% include image.html file="RISC-VSoc.png" max-width='600' %}
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section class="section-block">
-    <div class="section-heading">
-      <p class="section-tag">Capabilities</p>
-      <h2>Why Choose Echo?</h2>
-    </div>
-    <div class="capability-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Feature</th>
-            <th>Highlights</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Unified Programming Model</td>
-            <td>A single programming framework bridging communication systems and AI workloads.</td>
-          </tr>
-          <tr>
-            <td>Modular by Design</td>
-            <td>Flexible architecture for rapid prototyping.</td>
-          </tr>
-          <tr>
-            <td>Plug &amp; Play</td>
-            <td>No hardware background required to get started.</td>
-          </tr>
-          <tr>
-            <td>Full Toolchain</td>
-            <td>Simulation, compilation, and deployment all included.</td>
-          </tr>
-          <tr>
-            <td>Cycle-Accurate Simulator</td>
-            <td>Designed for software-hardware co-design.</td>
-          </tr>
-          <tr>
-            <td>Open Collaboration</td>
-            <td>Contribute operators, apps, or hardware extensions.</td>
-          </tr>
-          <tr>
-            <td>Communication &amp; AI Operators</td>
-            <td>Provides AI operator libraries and richer signal-processing operator libraries.</td>
-          </tr>
-          <tr>
-            <td>Real Use Cases</td>
-            <td>Validated in live projects with measurable performance.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="section-block">
-    <div class="section-heading">
-      <p class="section-tag">Audience</p>
-      <h2>Who Is Echo For?</h2>
-    </div>
-    <div class="audience-grid">
-      <article class="audience-card">
-        <p class="audience-title">Academia &amp; Researchers</p>
-        <p class="audience-subtitle">Open-Source Platform for Communication-AI Research</p>
-        <p>Echo provides a low-cost, low-power environment to prototype and validate communication algorithms with real-world performance. Ideal for academic research and rapid innovation.</p>
-      </article>
-      <article class="audience-card">
-        <p class="audience-title">Industry</p>
-        <p class="audience-subtitle">Decoupled Software-Hardware Baseband Chip Solution</p>
-        <p>Accelerate your baseband chip development with a modular, software-first approach.</p>
-        <p><strong>R&amp;D Cycle Reduced:</strong> From 12-18 months to just 3-6 months.</p>
-      </article>
-      <article class="audience-card">
-        <p class="audience-title">Standards Organizations</p>
-        <p class="audience-subtitle">Fast-Track 6G Technology Validation</p>
-        <p>Streamline the path to 6G standardization with efficient tools and full-stack communication-AI libraries.</p>
-        <p>Cut traditional prototype cycles of 3-5 years down to months.</p>
-      </article>
-    </div>
-    <blockquote class="home-quote">
-      <strong>Echo is your playground.</strong> Whether you're building, testing, or scaling, Echo gives you the freedom to create.
-    </blockquote>
-  </section>
-
-  <section class="section-block">
-    <div class="section-heading">
-      <p class="section-tag">Roadmap</p>
-      <h2>Future Roadmap of Echo</h2>
-    </div>
-    <div class="roadmap-card">
-      <p><strong>Echo v1.0 beta</strong> is scheduled for release before January 1, 2026.</p>
-      <p>A major milestone in our open-source journey, officially introducing a unified programming paradigm for Communication-AI fusion.</p>
-      <div class="visual-frame wide">
-        {% include image.html file="EchoTimeline.png" max-width='800' %}
-      </div>
-    </div>
-  </section>
-
-  <section class="section-block cta-section">
-    <div class="cta-card">
-      <div>
-        <p class="section-tag">Get Started</p>
-        <h2>Start building with Echo now</h2>
-      </div>
-      <ol class="start-list">
-        <li>Visit our quick-start guide: <a href="https://acelab-shu.github.io/ACE-Echo/mydoc_get_started.html">Get Started with OpenEcho / ACE-LAB Echo</a></li>
-        <li>Download the toolchain &amp; examples.</li>
-        <li>Join the community and start building.</li>
-      </ol>
-    </div>
-    <div class="cta-card community-card">
-      <p class="section-tag">Community</p>
-      <h2>Join the Echo Community</h2>
-      <p>Email: <a href="mailto:shenyihao@shu.edu.cn">shenyihao@shu.edu.cn</a></p>
-      <p>Community: coming soon</p>
-      <blockquote class="closing-quote">"Echo is not just a platform, it's a call to build the future of Communication."</blockquote>
-      <p>We warmly welcome more developers, researchers, and collaborators to join us on this journey.</p>
-    </div>
-  </section>
-</section>

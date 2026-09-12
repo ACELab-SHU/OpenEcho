@@ -1,4 +1,4 @@
-repository: tomjoht/documentation-theme-jekyll
+repository: ACELab-SHU/ACE-Echo
 
 output: web
 # this property is useful for conditional filtering of content that is separate from the PDF.
@@ -6,10 +6,10 @@ output: web
 topnav_title: ACE-Echo
 # this appears on the top navigation bar next to the home button
 
-site_title: ACE-LAB Echo
+site_title: ACE-Echo 1.0
 # this appears in the html browser tab for the site title (seen mostly by search engines, not users)
 
-company_name: Copyright 2025 ACE-LAB of Shanghai University
+company_name: Copyright 2026 ACE-LAB of Shanghai University
 # this appears in the footer
 
 github_editme_path:

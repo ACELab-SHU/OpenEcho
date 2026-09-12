@@ -8,6 +8,9 @@ permalink: mydoc_get_started.html
 folder: mydoc
 ---
 
+> **Legacy guide.** For the Gem5-based ACE-Echo 1.0 / Venus 1.0 release, use the [new getting-started guide](venus1_get_started.html).
+
+
 
 &emsp;&emsp;Welcome to  the **Echo** project! We offer two methods: **local compilation chain deployment (Option 1)** and **Docker rapid deployment (Option 2)** to help you quickly set up the development environment, install dependencies and build the code base. 
 
