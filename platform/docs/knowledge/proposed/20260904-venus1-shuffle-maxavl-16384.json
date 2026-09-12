@@ -1,0 +1,82 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260904-venus1-shuffle-maxavl-16384",
+  "date": "2026-09-04",
+  "status": "REVIEW_REQUIRED",
+  "kind": "BACKEND_SCOPED_SHUFFLE_INDEX_DOMAIN_RULE",
+  "title": "Partition Venus1 shuffle domains at the RTL MaxAVL boundary",
+  "objective": "Prevent Gem5-only success from hiding deterministic Venus1 RTL index wrap when vshuffle addresses element 16384 or above.",
+  "rules": [
+    {
+      "id": "bind-shuffle-domain-to-backend-maxavl",
+      "statement": "For every vshuffle gather or scatter, prove that every runtime index is in [0, MaxAVL). Resolve MaxAVL from the selected backend's authoritative RTL or a reviewed backend manifest field; extended-vector capacity and task workspace size do not enlarge the shuffle index domain.",
+      "falsification": "A different reviewed RTL/backend digest may define a different MaxAVL and therefore a different legal interval."
+    },
+    {
+      "id": "partition-and-rebase-wide-logical-tensors",
+      "statement": "When a logical tensor or destination placement crosses MaxAVL, partition it into independently returned or consumed chunks and rebase every per-chunk shuffle index below MaxAVL. Audit task-call arguments, output ports, 64-byte transfer alignment and Scheduler L2 pressure after partitioning.",
+      "falsification": "A non-shuffle implementation or an RTL-proven wider index path may avoid partitioning, but requires equivalent exact Gem5 and fresh-RTL evidence."
+    },
+    {
+      "id": "require-boundary-sensitive-rtl-evidence",
+      "statement": "Gem5 correctness is insufficient when a candidate uses shuffle indices at or above the selected MaxAVL. Qualification requires fresh RTL output comparison, and a future shared-model change should include focused 16383/16384 positive-negative regressions.",
+      "falsification": "The extra RTL boundary gate is unnecessary when static proof establishes that all possible indices are below MaxAVL."
+    }
+  ],
+  "backend_scoped_evidence": {
+    "backend": "venus1p0-64x512-300mhz",
+    "rtl_root": "/home/shenyihao/Project/Venus/venus_soc",
+    "rtl_commit": "a34a99aeb9245e01178d7a357c226e87a4249aef",
+    "rtl_contract": {
+      "maxavl_declaration": "hardware/generated/cluster0_tile11_pkg.sv:26: localparam int unsigned MaxAVL = 16384",
+      "shuffle_index_width": "hardware/venus_extension/venus_shuffle_engine.sv:99 and :833 use logic [$clog2(MaxAVL)-1:0]"
+    },
+    "workload": "Damoda Hive HIVE_PHY_TX_OFDM CP/WOLA chunk assembly",
+    "rejected_candidate": {
+      "logical_output_elements": 17568,
+      "gem5": "all expected outputs exact",
+      "fresh_rtl_run": "runs/damoda-hive-phy-venus1-a001/stages/F50-tx-ofdm-l2-opt-rtl-a001",
+      "qpsk_result": "39/45 visible outputs exact; task 5 port 0 indices 16384..17567 wrapped onto 0..1183",
+      "16qam_result": "21/24 visible outputs exact; the same task 5 prefix plus half0 and scaled-half0 failed",
+      "localization": "RTL task-5 head[0:1184] equaled the correct Gem5 tail[16384:17568], while the RTL tail was zero"
+    },
+    "selected_candidate": {
+      "partitions_elements": [
+        15360,
+        2208
+      ],
+      "maximum_per_partition_index": 15359,
+      "gem5_verification": "QPSK 47/47 and 16QAM 25/25 visible outputs exact",
+      "fresh_rtl_run": "runs/damoda-hive-phy-venus1-a001/stages/F61-tx-ofdm-shuffle-split-rtl-a002",
+      "fresh_rtl_result": "QPSK 47/47 and 16QAM 25/25 visible outputs exact; both embedded final-output oracles passed",
+      "l2_result": "QPSK ended at 0x7b3c0 with 52288-byte margin; 16QAM ended at 0x45500 with 273152-byte margin"
+    }
+  },
+  "evidence": [
+    "runs/damoda-hive-phy-venus1-a001/stages/F50-tx-ofdm-l2-opt-rtl-a001/qpsk-rtl-vs-gem5.json",
+    "runs/damoda-hive-phy-venus1-a001/stages/F50-tx-ofdm-l2-opt-rtl-a001/16qam-rtl-vs-gem5.json",
+    "runs/damoda-hive-phy-venus1-a001/stages/F61-tx-ofdm-shuffle-split-rtl-a002/qpsk-rtl-vs-gem5.json",
+    "runs/damoda-hive-phy-venus1-a001/stages/F61-tx-ofdm-shuffle-split-rtl-a002/16qam-rtl-vs-gem5.json",
+    "workloads/5g_lite/tasks/damoda_hive_cp_wola_chunk7_venus1/Task_hivePhyCpWolaChunk4.c",
+    "workloads/5g_lite/applications/damoda_hive_phy_venus1/stages/F61-tx-ofdm-rtl-result.json"
+  ],
+  "non_transferable_items": [
+    "the Damoda tensor sizes and split point",
+    "absolute L2 addresses",
+    "the 100000-cycle workload budget",
+    "the observed task identifiers"
+  ],
+  "promotion_conditions": [
+    "Human review",
+    "A reduced 16383/16384 gather-and-scatter boundary probe on this exact Venus1 RTL",
+    "A reviewed backend-manifest representation of MaxAVL or an equivalent static compiler gate",
+    "A separate Gem5 model/regression change that reproduces the RTL boundary without modifying historical evidence"
+  ],
+  "shadow_patch": {
+    "status": "NOT_GENERATED",
+    "reason": "This proposal records backend-scoped workload evidence. Shared skill, compiler and Gem5 changes require separate human review and focused regressions."
+  },
+  "rollback": "Remove this proposal and its proposed-index entry; the workload partition and immutable qualification evidence remain valid.",
+  "shared_core_modified": false,
+  "vemu_used": false
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260820-venus2-memory-address-domains-bf82d804",
+  "date": "2026-08-20",
+  "status": "PROMOTED_AFTER_HUMAN_REQUEST_AND_AGENT_REVIEW",
+  "kind": "FOUNDATION_RULE_PLUS_BACKEND_SCOPED_EMPIRICAL_PROFILE",
+  "title": "Separate Venus address domains, transfer units and physical memory capacities",
+  "human_request": "帮我审核通过后写入，然后继续上面的写dag的任务",
+  "accepted_scope": [
+    "Promote general address-domain and transfer-unit rules to the Venus foundation guide.",
+    "Store absolute Venus2 memory addresses only under backend venus2p0-16x128 and RTL bf82d804.",
+    "Retain the PBCH FEP combined-image layout as a workload instance rather than a universal layout.",
+    "Reject the inferred fixed LDU +0x4000 translation and its -0x4000 workaround."
+  ],
+  "base_digests": {
+    "docs/knowledge/foundations/venus-user-guide.md": "c58f5e1184385232bbcce0ebd0c7eb6805d4b56e2cda9e63812ec1dec81c6cbe",
+    "configs/backends/venus2p0-16x128.json": "24eecb93e178a5cacbaf82673e31a175823b5a72159e5cadb5a574f224c06bd3"
+  },
+  "promoted_outputs": {
+    "foundation": {
+      "path": "docs/knowledge/foundations/venus-user-guide.md",
+      "sha256": "5d3efd40b17c00215127581020d67af99015a6a5e313f0578abe5ada508a5203"
+    },
+    "empirical_profile": {
+      "path": "docs/knowledge/empirical/venus2p0-16x128/bf82d804/memory-address-domains.json",
+      "sha256": "696cc9b756c4d78701ae0f08bec14d768a9664e954f9a890cdeded0de1660895"
+    }
+  },
+  "review_findings": [
+    "The active RTL configuration allocates 0x80000 bytes (512 KiB) of shared SRAM; 0x4000 is the 16 KiB physical VRF data capacity for this profile.",
+    "An i16 vload length of 16384 requests 32768 bytes and wraps the 8192-i16 physical VRF, explaining the apparent 0x4000 displacement.",
+    "The descriptor payload offset is proven for LDU/STU use but is not proven as a scalar C pointer in the current Gem5 adapter.",
+    "The active wrapper/fabric mapping at 0x80008000 conflicts with older 0x80020000 SoC package constants."
+  ],
+  "deferred_changes": [
+    {
+      "target": "configs/backends/venus2p0-16x128.json",
+      "reason": "The approved PBCH golden records the current backend-manifest digest. Mutating it during this active workload would stale that binding; add the authoritative memory map only through a separately frozen backend qualification attempt before RTL."
+    },
+    {
+      "target": "scalar external-L2 mapping",
+      "reason": "No positive/negative Gem5 plus RTL probe currently proves a scalar virtual address for descriptor payload offsets."
+    }
+  ],
+  "rollback": "Restore the foundation base digest, remove the scoped empirical record, and remove the corresponding live-registry entries.",
+  "review_receipt": "runs/knowledge-review-20260820-a003.json",
+  "vemu_used": false
+}

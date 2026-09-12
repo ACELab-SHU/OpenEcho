@@ -1,0 +1,42 @@
+{
+  "schema": "ace-echo-forge-request/v1",
+  "intent": "Port an OAI NR UE receive application to a configured Venus backend",
+  "source": {
+    "kind": "executable_source",
+    "language": "C/C++",
+    "root": "/home/shenyihao/Project/OpenSourceProject/OAI/openairinterface5g",
+    "revision": "c8b78200bf7392b842f7e5b8485837531acaa3e4"
+  },
+  "backend_manifest": "../configs/backends/venus2p0-16x128.json",
+  "reference": {
+    "state": "SOURCE_IMPLEMENTATION",
+    "adapter": "reference-oai-c.example.json"
+  },
+  "workload": {
+    "kind": "application",
+    "name": "oai-nr-ue-rx",
+    "required_correctness_scopes": [
+      "reference_case_exact",
+      "gem5_final_dag_output_exact",
+      "rtl_all_visible_outputs_exact"
+    ]
+  },
+  "optimization": {
+    "primary_metric": "gem5_ticks",
+    "max_candidates": 20,
+    "plateau_candidates": 5,
+    "ai_first": true,
+    "one_hypothesis_per_candidate": true
+  },
+  "cleanup": {
+    "after_application_complete": true,
+    "retain_top_correct": 3,
+    "keep_all_override": true
+  },
+  "validation": {
+    "vemu_forbidden": true,
+    "rtl_source_immutable": true,
+    "compare_all_visible_outputs": true,
+    "freeze_case_inputs_and_outputs": true
+  }
+}

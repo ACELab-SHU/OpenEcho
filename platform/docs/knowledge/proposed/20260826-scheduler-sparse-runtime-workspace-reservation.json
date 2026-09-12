@@ -1,0 +1,90 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260826-scheduler-sparse-runtime-workspace-reservation",
+  "date": "2026-08-26",
+  "status": "REVIEW_REQUIRED",
+  "kind": "PORTABLE_SCHEDULER_ADDRESS_SPACE_RULE_WITH_BACKEND_SCOPED_EVIDENCE",
+  "title": "Reserve the complete runtime image extent when Scheduler stages only an initialized prefix",
+  "objective": "Prevent Scheduler temporary task returns from aliasing producer-initialized shared-memory workspaces that are intentionally absent from the staged binary.",
+  "rules": [
+    {
+      "id": "distinguish-staged-bytes-from-runtime-extent",
+      "statement": "Treat the bytes embedded in the Scheduler image and the maximum byte occupied by the hydrated runtime image as separate quantities. A compact staged prefix does not prove that the omitted address range is free for task returns.",
+      "falsification": "The quantities may be identical only when an exact image/layout audit proves that no producer, task, or declared state uses any omitted byte."
+    },
+    {
+      "id": "place-temporaries-after-runtime-extent",
+      "statement": "When Scheduler computes a temporary return address as staged_bytes plus temp_offset, translate the descriptor offsets so every temporary begins at or after the complete hydrated runtime extent, while preserving lifetimes, dependencies, lengths, types, and task code.",
+      "falsification": "Reject the translation if the staged binary is not an exact prefix of the runtime image, any output still overlaps the runtime extent, or the maximum translated end exceeds the backend-declared aperture."
+    },
+    {
+      "id": "derive-do-not-hardcode",
+      "statement": "Derive the reservation delta from runtime_image_bytes minus staged_bin_bytes and obtain the exclusive image limit from the backend address contract. Never promote an observed delta or absolute address into a universal Venus rule.",
+      "falsification": "A backend may use another allocation formula only when its manifest and hardware/Scheduler evidence explicitly declare that formula and an all-output hardware test qualifies it."
+    },
+    {
+      "id": "requalify-address-only-adaptation",
+      "statement": "After an address-only descriptor adaptation, rerun Gem5 fast, Gem5 verification, isolated Scheduler packaging, and fresh RTL all-visible-output comparison. Require same-key software returns before using the hardware result.",
+      "falsification": "Any content, dependency, task timing-class, or visible-return change means the operation was not merely address-space reservation and must be reviewed as a new candidate."
+    }
+  ],
+  "backend_scoped_evidence": {
+    "backend": "venus2p0-16x128",
+    "workload": "OAI NR UE_DLSCH_DECODE canonical A8424/G25344 BG1/Z384/C1",
+    "approved_golden_digest": "7cb12e2f075b1308a4eb700cf1300a0240985603b773f001182b6314b01c0144",
+    "negative_compact_handoff": {
+      "run": "runs/oai-nr-dlsch-decode-rtl-a032",
+      "staged_bin_bytes": 116224,
+      "runtime_image_bytes": 466368,
+      "symptom": "Scheduler placed temporary returns inside the HARQ/LLR workspace; task12 read overwritten state and only 35 of 44 RTL returns matched Gem5."
+    },
+    "qualified_reservation": {
+      "tool": "workloads/5g_lite/tasks/oai_nr_dlsch_decode_vector_product_venus2/reserve_runtime_workspace.py",
+      "descriptor_sha256": "5b1de79c9da44e660632fdfc5d356ef6129366326736064a611698cb7543b2bd",
+      "reserve_delta_bytes": 350144,
+      "maximum_reserved_end": 520896,
+      "exclusive_image_limit": 557056,
+      "remaining_bytes": 36160,
+      "gem5_fast_same_key_returns": "44/44",
+      "gem5_verification_same_key_returns": "44/44",
+      "fresh_rtl_success_returns": "44/44",
+      "gem5_success_task_cycle_sum": 3507850,
+      "rtl_success_task_cycle_sum": 3500139.5,
+      "gem5_minus_rtl_percent": 0.22029121982138142
+    }
+  },
+  "evidence": [
+    "runs/oai-nr-dlsch-decode-product-compile-a032/artifacts/toolchain/dag1-rtl-reserved-receipt.json",
+    "runs/oai-nr-dlsch-decode-product-compile-a032/artifacts/toolchain/dag1-rtl-reserved-failure-receipt.json",
+    "runs/oai-nr-dlsch-decode-product-fast-success-reserved-a018/artifacts/validation-report.json",
+    "runs/oai-nr-dlsch-decode-product-verification-success-reserved-a006/artifacts/validation-report.json",
+    "runs/oai-nr-dlsch-decode-rtl-a033/artifacts/success/rtl-return-comparison.json",
+    "runs/oai-nr-dlsch-decode-rtl-a033/artifacts/success/gem5-vs-rtl-performance.json"
+  ],
+  "non_transferable_items": [
+    "the 350144-byte reservation delta",
+    "the 116224-byte staged prefix",
+    "the 466368-byte runtime image",
+    "the 0x88000 relative image limit",
+    "DLSCH workspace addresses and output lifetimes"
+  ],
+  "promotion_conditions": [
+    "Human review",
+    "A second sparse-staged DAG reproduces the overlap hazard or passes the derived reservation audit",
+    "The then-current Scheduler allocation formula and backend aperture remain source-evidenced",
+    "An exact shadow patch is reviewed before changing a global skill or foundation contract"
+  ],
+  "shadow_patch": {
+    "status": "NOT_GENERATED",
+    "reason": "One DLSCH image proves the backend-scoped failure and repair; portable skill promotion waits for a second workload and human review."
+  },
+  "rollback": "Remove this proposal and its index entry; the workload-local reservation tool and immutable run evidence remain independently auditable.",
+  "core_changes": {
+    "rtl": false,
+    "scheduler": false,
+    "dsl": false,
+    "gem5": false,
+    "backend_manifest": false
+  },
+  "vemu_used": false
+}

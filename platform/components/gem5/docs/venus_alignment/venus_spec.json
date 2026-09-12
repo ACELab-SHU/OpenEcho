@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "scope": "partial Venus RTL-aligned specification",
+  "rtl_revision": "bf82d804968672e04db31d105876092d78969b0e",
+  "gem5_revision": "f20e294b2d6de8170da5aff669375f535561690f",
+  "rules": [
+    {
+      "path": "test_configuration.venus_tile",
+      "value": {"lanes": 16, "rows": 128},
+      "status": "confirmed-for-r1-case",
+      "evidence_kind": "vemu-gem5-run",
+      "sources": [
+        "/tmp/vemu_pdsch_16x128_r1/dsl/config.mk",
+        "configs/tutorial/part1/packet_gen.py:35-57"
+      ]
+    },
+    {
+      "path": "test_configuration.r1_tile_clock_period",
+      "value": "2ns",
+      "unit": "tileclk period",
+      "status": "rtl-testbench-confirmed",
+      "evidence_kind": "rtl-source-review",
+      "sources": [
+        "../venus_soc/sim/testbenches/testbench_postsyn_tile.sv:270-278"
+      ]
+    },
+    {
+      "path": "test_configuration.r1_axi_clock_period",
+      "value": "4ns",
+      "unit": "aclk period",
+      "status": "rtl-testbench-confirmed",
+      "evidence_kind": "rtl-source-review",
+      "sources": [
+        "../venus_soc/sim/testbenches/testbench_postsyn_tile.sv:261-268"
+      ]
+    },
+    {
+      "path": "test_configuration.r1_runtime_clock_topology",
+      "value": "selected_block_clk=tileclk (2ns) during task execution; AXI/L2 remains on aclk (4ns)",
+      "status": "rtl-source-confirmed; gem5-structural-profile-tested",
+      "evidence_kind": "rtl-source-review+gem5-run",
+      "sources": [
+        "../venus_soc/sim/testbenches/testbench_postsyn_tile.sv:876-930",
+        "../venus_soc/hardware/soc_hierachy/venus_block_wrapper.sv:148-169",
+        "configs/tutorial/part1/packet_gen.py:95-121"
+      ]
+    },
+    {
+      "path": "scalar.vbarrier.guard_cycles",
+      "value": 6,
+      "unit": "scalar id_clk cycles",
+      "status": "source-confirmed; rtl-run-pending",
+      "evidence_kind": "rtl-source-review+gem5-run",
+      "sources": [
+        "../venus_soc/hardware/spiritrv32/scalar600_id_stage.sv:35",
+        "../venus_soc/hardware/spiritrv32/scalar600_id_stage.sv:268-282",
+        "src/cpu/minor/execute.cc:66",
+        "src/cpu/minor/execute.cc:1159-1178"
+      ]
+    },
+    {
+      "path": "scalar.vbarrier.busy_sampling",
+      "value": "three registered samples of venusidle_i before barrier release",
+      "status": "source-confirmed; rtl-run-pending",
+      "evidence_kind": "rtl-source-review+gem5-run",
+      "sources": [
+        "../venus_soc/hardware/spiritrv32/scalar600_id_stage.sv:255-266",
+        "src/cpu/minor/cpu.cc:200-231",
+        "src/cpu/minor/pipeline.cc:131-137",
+        "src/venus/VenusSequencer.cc:926-955"
+      ]
+    },
+    {
+      "path": "task.vreturn.contract",
+      "value": "producer provides return count, source and valid byte length at runtime",
+      "status": "confirmed-for-r1-case",
+      "evidence_kind": "vemu-gem5-run",
+      "sources": [
+        "/home/shenyihao/Project/MultiVemu/VEMU/5g_lite/tasks/nrPDSCHDag2_hw_2p0/Task_nrPDSCHDMRSIndices.c:952-954",
+        "src/venus/VenusDagScheduler.cc:632-674",
+        "/tmp/rtl_gem5_pdsch2p0_r1/task1_gem5/venus_dag_trace.jsonl"
+      ]
+    },
+    {
+      "path": "task.nrPDSCHDMRSIndices.vsadd_vl",
+      "value": 648,
+      "unit": "i16 elements",
+      "status": "confirmed-for-r1-case",
+      "evidence_kind": "vemu-gem5-run",
+      "sources": [
+        "/home/shenyihao/Project/MultiVemu/VEMU/5g_lite/tasks/nrPDSCHDag2_hw_2p0/Task_nrPDSCHDMRSIndices.c:918-923",
+        "/tmp/rtl_gem5_pdsch2p0_r1/task1_gem5/gem5_events.log"
+      ]
+    },
+    {
+      "path": "gem5.scheduler.phase_rule",
+      "value": "Scheduler stepEvent is phase-normalized to its own ClockedObject edge; tile-origin task_epilogue is retained as a tile-domain notification",
+      "status": "gem5-run-confirmed; rtl-run-pending",
+      "evidence_kind": "gem5-run",
+      "sources": [
+        "src/venus/VenusDagScheduler.hh:118-129",
+        "/tmp/rtl_gem5_pdsch2p0_r1/phase_regression_dual_isolated/venus_dag_trace.jsonl"
+      ]
+    }
+  ],
+  "unknown_or_not_yet_validated": [
+    "RTL execution result for the R1 16x128 task input",
+    "RTL cycle-to-gem5 tick conversion, a globally valid observation offset, and CDC/task-completion handshake latency; GEM5 has a tested structural dual-clock profile but no RTL trace",
+    "VRF bank conflict, queue, replay and LSU timing curves",
+    "full current scheduler runtime inputs for PDSCHDag2_hw_2p0"
+  ]
+}

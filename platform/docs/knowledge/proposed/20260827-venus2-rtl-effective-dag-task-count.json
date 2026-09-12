@@ -1,0 +1,28 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260827-venus2-rtl-effective-dag-task-count",
+  "status": "REVIEW_REQUIRED",
+  "backend_id": "venus2p0-16x128",
+  "category": "backend_qualification",
+  "correction": "The current RTL allocates 64 task containers but its DAG task-count register is only clog2(64)=6 bits. A task_count of 64 encodes as zero, while larger counts wrap modulo 64. Therefore 64 is not a deployable task-count value for this RTL revision.",
+  "proposed_rule": "Before Scheduler handoff or fresh RTL, require 1 <= descriptor_task_count <= 63 for the current Venus2 RTL profile. Count only descriptor entries with a current_taskId. Treat Gem5 success above 63 as software-only evidence, never as RTL qualification. Do not generalize this bound to another backend or RTL revision without inspecting its manifest and task-count register width.",
+  "proposed_linter_hint": "The backend contract should expose both task_container_capacity and max_encodable_dag_task_count. Reject task_count zero or greater than max_encodable_dag_task_count before L1 packaging; do not infer the latter from the container array length alone.",
+  "evidence": {
+    "rtl_capacity": "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/l2_scheduler_pkg.sv:32 declares MAX_TASK_NUM_PER_DAG = 64",
+    "rtl_count_width": "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/task_manager_wrapper.sv:91 declares task_num_reg with clog2(MAX_TASK_NUM_PER_DAG) bits",
+    "rtl_count_write": "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/task_manager_wrapper.sv:442-445 truncates the L1 task count to that width",
+    "rtl_completion_use": "/home/shenyihao/Project/Venus_3/venus_soc/hardware/L2_scheduler/task_manager_wrapper.sv:539-541 compares every container index against the truncated count",
+    "wrapped_78_task_observation": "runs/oai-nr-ulsch-encode-c2-rtl-a001 executed exactly task IDs 0-13 because 78 modulo 64 is 14",
+    "wrapped_64_task_observation": "runs/oai-nr-ulsch-encode-c2-rtl-a002 and a003 encoded 64 as zero; the completion table became true while task0 was active and L1 teardown triggered the AXI S8 AW idle assertion",
+    "qualified_graph_shape": "runs/oai-nr-ulsch-encode-c2-compile-a011 contains 63 descriptor tasks after eliminating one pure synchronization node"
+  },
+  "negative_controls": [
+    "Delaying fire_dag by a workload loop moved first launch from about 170 us to about 197 us but did not prevent the assertion, proving that fixed startup delay is not the correction.",
+    "No RTL, Scheduler core, DSL/compiler, Gem5 timing model, or backend manifest source was modified to obtain this diagnosis."
+  ],
+  "limitations": [
+    "The 63-task bound is scoped to the inspected RTL revision and must be requalified if task_num_reg width changes.",
+    "A 63-task graph still must pass output-count, memory-capacity, Scheduler packaging, exact Gem5 verification, and fresh RTL gates.",
+    "This proposal records a qualification rule; it does not authorize a hardware fix."
+  ]
+}

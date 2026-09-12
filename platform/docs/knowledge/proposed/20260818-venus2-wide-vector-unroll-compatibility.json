@@ -1,0 +1,41 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "date": "2026-08-18",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Probe Venus2 full-Z unrolling against VNS, venusplit, and memory-contract limits",
+  "proposed_rule": "Treat full-Z vectors and straight-line layer specialization as performance hypotheses, not generally supported syntax. Every wide vector local must be explicitly vclaim'ed. Reject candidates that produce an unencodable VNS operand, exhaust contiguous Venus allocation, or inline vector operations through a scalar loop that venusplit cannot transform. Prefer generated straight-line, degree-specialized kernels with bounded live vectors and code size. Never inherit absolute scratch addresses from a reference kernel; all memory must come from the DAG/backend contract. A successful compile is insufficient: the candidate must complete Gem5 fast execution and match the authoritative golden before it can be ranked.",
+  "prompt": "Can this hot LDPC layer be generated as straight-line code for its known degree and Z while keeping the exact OAI saturation, infinity, normalization, rotation, and iteration semantics? Estimate simultaneous claimed rows and text size, compile a reduced probe, inspect emitted VNS operands, then run Gem5 fast and compare every output. If the compiler emits vns4 or assigns a scalar operand to vns, venusplit crashes on a loop PHI, contiguous allocation fails, or the kernel touches an undeclared absolute address, reject this shape and reduce live range or unroll scope.",
+  "scope": "Venus2 LDPC and other fixed-shape high-degree iterative kernels",
+  "evidence": {
+    "reference_workload": "workloads/5g_lite/tasks/Venus2p0_LDPC",
+    "reference_compile": "runs/reference-venus2p0-ldpc-compile-a001",
+    "reference_fast_failure": "runs/reference-venus2p0-ldpc-fast-a002",
+    "reference_diagnosis": "The four-layer, one-iteration, Z=384 straight-line reference compiles, but uses a literal 0x80070000 workspace and faults in the current ACE-ECHO Gem5 memory contract before producing a result.",
+    "failed_candidates": [
+      "runs/oai-nr-dlsch-decode-bg1z384-z384vec-compile-a001",
+      "runs/oai-nr-dlsch-decode-bg1z384-z384vec-compile-a002",
+      "runs/oai-nr-dlsch-decode-bg1z384-z384vec-compile-a003",
+      "runs/oai-nr-dlsch-decode-bg1z384-z384vec-compile-a004",
+      "runs/oai-nr-dlsch-decode-bg1z384-z384vec-compile-a005",
+      "runs/oai-nr-dlsch-decode-bg1z384-inline-compile-a001"
+    ],
+    "failure_fingerprints": [
+      "LLVM wide-vector legalization failure when __v384i8 locals lack vclaim",
+      "Venus contiguous-allocation failure on wide partial-mask updates",
+      "invalid emitted vns4 and scalar/VNS register-class crossover under excess wide noinline-helper pressure",
+      "venusplit vector::_M_range_check failure when loop-carried vector operations are force-inlined"
+    ],
+    "preserved_baseline": "runs/oai-nr-dlsch-decode-bg1z384-integrated-compile-a032"
+  },
+  "implementation_proposal": [
+    "Add a compile preflight that rejects emitted VNS register numbers outside the backend manifest",
+    "Add a source lint requiring vclaim for logical vectors wider than the physical row",
+    "Generate fixed-degree straight-line kernels only for measured hot layers and keep a generic fallback",
+    "Estimate claimed physical rows and firmware text bytes before full compilation",
+    "Reject literal workspace addresses unless the backend manifest explicitly declares the range",
+    "Require Gem5 completion and bit-exact golden comparison after every successful wide-vector compile"
+  ],
+  "rtl_change_required": false,
+  "gem5_change_required": false,
+  "rollback": "Remove this proposed lint/search rule. No RTL or approved workload semantics are changed by the proposal."
+}

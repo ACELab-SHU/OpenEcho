@@ -1,0 +1,94 @@
+[
+    {
+        "Input_Num": 3,
+        "Output_Num": 2,
+        "all_input": [
+            {
+                "dest_address": "0x100600",
+                "name": "dfe_input_0",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x100600",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 1,
+                "length": 4420,
+                "datatype": "char",
+                "offset": 32960
+            },
+            {
+                "dest_address": "0x22000",
+                "name": "scsSSB",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22000",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 2,
+                "length": 2,
+                "datatype": "short",
+                "offset": 32768
+            },
+            {
+                "dest_address": "0x22040",
+                "name": "symbolNum0",
+                "parentTasksPort": "0b0000000000",
+                "slice_data_dest_str": "0x22040",
+                "slice_data_type": "0",
+                "slice_length": "0",
+                "type": "0b010",
+                "index": 3,
+                "length": 2,
+                "datatype": "short",
+                "offset": 32832
+            }
+        ],
+        "all_output": [
+            {
+                "length": 2208,
+                "name": "dfe_output_real_0",
+                "parentTasksPort": "0b0000000000",
+                "temp_offset": 0
+            },
+            {
+                "length": 2208,
+                "name": "dfe_output_imag_0",
+                "parentTasksPort": "0b0000000001",
+                "temp_offset": 2240
+            }
+        ],
+        "current_taskId": 0,
+        "data_length": 0,
+        "data_offset": 576,
+        "debug_task_name": "Task_inputSplit",
+        "hardwareinfo": "0b00000101111",
+        "hash": "0x16014578",
+        "is_spmd": 0,
+        "min_core_num": 1,
+        "text_length": 576,
+        "text_offset": 0,
+        "total_length": 576
+    },
+    {
+        "return_output": [
+            {
+                "name": "dfe_output_real_0",
+                "parentTasks": "0",
+                "parentTasksPort": "0b0000000000",
+                "taskId": "Task_inputSplit",
+                "index": 0,
+                "type": "0b111",
+                "length": 2208
+            },
+            {
+                "name": "dfe_output_imag_0",
+                "parentTasks": "0",
+                "parentTasksPort": "0b0000000001",
+                "taskId": "Task_inputSplit",
+                "index": 1,
+                "type": "0b111",
+                "length": 2208
+            }
+        ]
+    }
+]

@@ -1,0 +1,6 @@
+Import('*')
+
+SimObject('MyTickedModule.py',
+          sim_objects=['MyTickedModule'])
+Source('MyTickedModule.cc')
+DebugFlag('MyTickedDebug')

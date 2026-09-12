@@ -1,0 +1,101 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260820-venus2-compatibility-profile-bf82d804",
+  "date": "2026-08-20",
+  "status": "EMPIRICAL_PROFILE_REVIEW_REQUIRED",
+  "kind": "BACKEND_HARDWARE_SCOPED_EMPIRICAL_PROFILE",
+  "title": "Venus2 compatibility profile at RTL bf82d804",
+  "promotion_target": "docs/knowledge/empirical/venus2p0-16x128/bf82d804/",
+  "scope": {
+    "backend": "venus2p0-16x128",
+    "rtl_repository": "/home/shenyihao/Project/Venus_3/venus_soc",
+    "rtl_commit": "bf82d804968672e04db31d105876092d78969b0e",
+    "backend_manifest": "configs/backends/venus2p0-16x128.json",
+    "backend_manifest_sha256": "24eecb93e178a5cacbaf82673e31a175823b5a72159e5cadb5a574f224c06bd3"
+  },
+  "facts_and_observations": [
+    {
+      "id": "task-input-physical-width",
+      "state": "RTL_CONFIRMED_CURRENT_COMMIT",
+      "value": 3,
+      "evidence": "hardware/L2_scheduler/l2_scheduler_pkg.sv:48-49 declares TASK_INPUT_TYPE_NUM=8 and TASK_INPUT_TYPE_BITS=$clog2(8).",
+      "historical_note": "The older two-bit proposal is stale for this RTL commit and is retained only as a historical mismatch counterexample."
+    },
+    {
+      "id": "rtl-bound-logical-types",
+      "state": "MANIFEST_CONTRACT_WITH_CCH_CONFORMANCE",
+      "value": {
+        "unsupported": [4, 5, 6],
+        "reason": "Current RTL-bound workloads must use backend-native value descriptors; logical-to-physical fit alone does not prove pointer-record semantics."
+      },
+      "evidence": "configs/backends/venus2p0-16x128.json and the CCH 61-port firmware handoff"
+    },
+    {
+      "id": "task-output-count-and-variable-length",
+      "state": "RTL_AND_FRESH_CCH_PROBE",
+      "value": {
+        "max_outputs": 16,
+        "return_length_bits": 32,
+        "variable_length_outputs": true,
+        "positive_lengths_bytes": [128, 320, 512, 896]
+      },
+      "evidence": "RTL return registers plus runs/cch-barrier-integrated-rtl-a001/artifacts/rtl-all-visible-ports-compare.json",
+      "result": "61/61 visible task outputs exact"
+    },
+    {
+      "id": "partial-final-dma-beat",
+      "state": "HISTORICAL_PROBE_REPLAY_REQUIRED_ON_CURRENT_COMMIT",
+      "value": "Historical probes observed 96, 288 and 864-byte requests delivering only 64, 256 and 832 bytes; current practice aligns and initializes the final 64-byte beat.",
+      "evidence": "20260818-venus-dag-output-port-capacity and 20260818-venus2-terminal-vector-coherence",
+      "restriction": "Do not treat this as a cross-version rule or as fully refreshed current-commit evidence until a focused replay is completed."
+    },
+    {
+      "id": "canonical-output-descriptor-order",
+      "state": "CURRENT_CCH_RTL_PROBE",
+      "value": "descriptor_response_lag_ports=0",
+      "evidence": "The unshifted CCH handoff is RTL-exact 61/61; the historical shifted form aliased destinations.",
+      "restriction": "Re-probe for a different RTL digest or Scheduler contract."
+    },
+    {
+      "id": "polar-scratch-visibility-fence",
+      "state": "WORKLOAD_SCOPED_GEM5_COUNTEREXAMPLE_WITH_RTL_QUALIFIED_SAFE_FORM",
+      "value": "Retain the classified scratch store-to-dependent-load fences in the current PDCCH Polar tasks.",
+      "positive": "C005/integrated retained-fence form is Gem5 and RTL 61/61 exact.",
+      "negative": "C004 no-fence form is Gem5 57/61 with first mismatch at Task 9 port 3.",
+      "restriction": "This does not establish a universal Venus2 scratch rule; an independent minimal probe remains required."
+    },
+    {
+      "id": "completion-poll-fallback",
+      "state": "CONFIGURED_AND_INTEGRATION_PASS_WITH_TEST_GAP",
+      "value": true,
+      "evidence": "The active manifest enables completion polling and the current CCH fresh RTL run completes all 14 tasks.",
+      "restriction": "Five generic Scheduler contract-test errors remain; do not treat this as a fully reviewed infrastructure contract."
+    },
+    {
+      "id": "compiler-pressure-failures",
+      "state": "COMPILER_VERSION_SCOPED_NEGATIVE_EVIDENCE",
+      "value": "Large retained vectors around vcmxmul and aggressive full-Z unrolling produced register-allocation, Venus-merge, VNS or venusplit failures in recorded candidates.",
+      "restriction": "These are search guards and probe triggers, not bans on vcmxmul, wide vectors or unrolling."
+    }
+  ],
+  "source_proposals": [
+    "20260817-rtl-testbench-api-preflight",
+    "20260817-scheduler-rtl-input-type-width",
+    "20260817-venus2-vcmxmul-live-pressure-guard",
+    "20260818-venus2-terminal-vector-coherence",
+    "20260818-scheduler-dag-completion-poll-fallback",
+    "20260818-venus-dag-output-port-capacity",
+    "20260818-dsl-static-dependency-input-order",
+    "20260818-venus2-wide-vector-unroll-compatibility",
+    "20260820-venus2-vector-scratch-barrier-boundary"
+  ],
+  "portability": "NONE. A new RTL digest or Venus generation imports only abstract hypotheses as unverified and must run new probes.",
+  "validation_backlog": [
+    "Replay a focused partial-final-beat positive/negative test on RTL bf82d804",
+    "Build an independent minimal scratch store/load fence probe",
+    "Make the Scheduler descriptor/completion contract tests green through a separately approved infrastructure change",
+    "Bind every retained compiler failure to the exact compiler/toolchain digest"
+  ],
+  "live_promotion": "NOT_APPLICABLE; this profile is empirical backend-scoped evidence, not portable live guidance.",
+  "vemu_used": false
+}

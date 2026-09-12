@@ -1,0 +1,25 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "date": "2026-08-17",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Classify dynamic DAG inputs independently from pass mode",
+  "proposed_rule": "In post-synthesis DAG descriptors, types 0 and 4 are producer dependencies, 1 and 5 are static external inputs, and 2 and 6 are dynamic DAG inputs. The 4-bit selects pointer pass mode; bit 0 alone does not determine ownership.",
+  "prompt": "When a dynamic dag_input is misreported as a parent-task dependency, inspect the full numeric descriptor type. Treat {1,2,5,6} as external and {0,4} as producer dependencies; reject unknown types explicitly.",
+  "scope": "ACE-ECHO Gem5 DAG hydration and dependency parsing",
+  "evidence": {
+    "failing_run": "runs/oai-nr-pbch-decode-rx1-fast-a001",
+    "failure": "task 0 input pbch_llr has invalid parent task 0",
+    "descriptor": {"name": "pbch_llr", "type": "0b110", "dsl_base_type": "0b010"},
+    "tests": "PYTHONPATH=src python3 -m unittest discover -s tests -p test_gem5_descriptor_types.py: 4/4 PASS",
+    "passing_runs": [
+      "runs/oai-nr-pbch-decode-rx1-fast-a002",
+      "runs/oai-nr-pbch-decode-rx1-verification-a001"
+    ]
+  },
+  "implementation": [
+    "components/gem5/tools/venus_dag.py",
+    "src/ace_echo/adapters/gem5.py",
+    "tests/test_gem5_descriptor_types.py"
+  ],
+  "rollback": "Revert the isolated ACE-ECHO adapter commit; no DSL, Gem5 execution semantics, workload, or RTL source is changed."
+}

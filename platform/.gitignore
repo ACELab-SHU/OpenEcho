@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+build/
+dist/
+runs/
+.ace-echo/
+
+
+# Local compiler and simulator outputs
+/Debug/
+m5out/
+/Task_*.hash
+/Task_*_input_scalar_num.txt
+/Task_*_output_num.txt
+/components/scheduler/dags/generated/oai_nr_pdcch_cch_rx1_*.inc

@@ -1,0 +1,9 @@
+*
+!.gitignore
+!include/
+!include/**
+!main.cpp
+!Makefile
+!*.cpp
+!*.hpp
+json

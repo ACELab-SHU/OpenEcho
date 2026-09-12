@@ -1,0 +1,79 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260821-venus-staged-dynamic-dag-qualification",
+  "date": "2026-08-21",
+  "status": "REVIEW_REQUIRED",
+  "kind": "PORTABLE_DAG_QUALIFICATION_RULE_WITH_BACKEND_SCOPED_EVIDENCE",
+  "title": "Separate dynamic DAG qualification from canonical replay fixtures",
+  "objective": "Prevent a fast static replay graph from being promoted as a deployable DAG, while preserving exact canonical validation and hardware-legal stage boundaries.",
+  "rules": [
+    {
+      "id": "runtime-boundaries-must-be-dag-inputs",
+      "statement": "A case-dependent upstream boundary must be declared as dag_input before Scheduler or deployment qualification. Embedding canonical values as BAS parameters proves only a replay recipe.",
+      "falsification": "Reject the rule only for a boundary proven immutable across every supported runtime configuration and explicitly owned as a static parameter."
+    },
+    {
+      "id": "canonical-data-is-a-fixture",
+      "statement": "Keep canonical runtime payloads in case artifacts and materialize a separate validation image at compiler-declared dynamic-input offsets. Do not modify the immutable compiler image or reclassify the values as static parameters.",
+      "falsification": "Reject any overlay whose name, length, digest or compiler-declared logical type differs from the frozen case manifest."
+    },
+    {
+      "id": "split-at-hardware-id-boundaries",
+      "statement": "When a backend field cannot encode a whole graph, split at exact value boundaries so every stage is independently legal; preserve the full ordered payload and include inter-stage transfer cost in integrated qualification.",
+      "falsification": "Reject if any stage exceeds the field capacity, changes fixed-point data, omits visible bytes, or reports only isolated-task cycles."
+    },
+    {
+      "id": "qualify-compiled-and-scheduler-recipes",
+      "statement": "Compare all visible outputs in Gem5 fast and verification for both the compiled DAG recipe and the decoded Scheduler L1 recipe. Treat the L1 contract model as descriptor/packaging evidence, not Scheduler firmware execution or RTL evidence.",
+      "falsification": "Any fast/verification, compiled/L1, intermediate/final or return-port mismatch rejects the candidate."
+    },
+    {
+      "id": "no-inferred-address-translation",
+      "statement": "Use compiler/backend address contracts exactly as declared. A canonical fixture overlay does not establish a universal +0x4000 or -0x4000 pointer translation.",
+      "falsification": "A translation may be introduced only as a backend-scoped manifest rule backed by dedicated Gem5 and RTL address-conformance evidence."
+    }
+  ],
+  "backend_scoped_evidence": {
+    "backend": "venus2p0-16x128",
+    "backend_manifest_sha256": "24eecb93e178a5cacbaf82673e31a175823b5a72159e5cadb5a574f224c06bd3",
+    "workload": "OAI PBCH canonical FFT4096",
+    "approved_golden_manifest_sha256": "093836a9fd7344173d134a24efb5163c14ed936c249d1c60634899558b782dd6",
+    "stage_task_counts": [57, 53, 37, 20, 32],
+    "stage_dynamic_input_bytes": [16384, 16384, 16384, 16384, 16384],
+    "stage_tile_cycles": [38874, 522614, 126772, 109520, 189250],
+    "total_tile_cycles": 987030,
+    "performance_gate_tile_cycles": 1000000,
+    "logical_input_types": [0, 1, 2],
+    "rtl_unsupported_types_absent": [4, 5, 6],
+    "final_output_sha256": "6d41cb66fe95cde8d49c32d6c6c1820af99b2b64fd5286d237c3cd5890119018",
+    "gem5": "PASS_COMPILED_AND_L1_FAST_AND_VERIFICATION_ALL_VISIBLE_OUTPUTS",
+    "scheduler": "PASS_FIVE_FRESH_SELF_CHECKING_L1_BUILDS",
+    "rtl": "BLOCKED_LICENSE_ENDPOINT_27000_LOCALHOST",
+    "hardware_consistency_claimed": false
+  },
+  "evidence": [
+    "workloads/5g_lite/tasks/nr_oai_fft4096_staged_venus2/validation-report.json",
+    "workloads/5g_lite/tasks/nr_oai_fft4096_staged_venus2/qualification-check.json",
+    "runs/oai-nr-fft4096-rtl-preflight-a002.json"
+  ],
+  "non_transferable_items": [
+    "987030 tile cycles",
+    "the five selected stage task counts",
+    "compiler-generated dynamic-input offsets",
+    "Venus2 task-ID field width",
+    "VCS license endpoint",
+    "absolute memory addresses"
+  ],
+  "promotion_conditions": [
+    "Human review of the distinction between replay and runtime DAG qualification",
+    "A second workload family demonstrating the same fixture/runtime separation",
+    "An exact shadow patch against current live-registry and skill base digests",
+    "Fresh RTL for backend-scoped hardware claims after license restoration"
+  ],
+  "shadow_patch": {
+    "status": "NOT_GENERATED",
+    "reason": "This turn records workload evidence; live portable promotion requires a second workload and explicit human review."
+  },
+  "rollback": "Remove this proposal and its index entry; workload validation artifacts remain immutable evidence.",
+  "vemu_used": false
+}

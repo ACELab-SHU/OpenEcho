@@ -1,0 +1,133 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260820-venus-programming-contract-v1",
+  "date": "2026-08-20",
+  "status": "REVIEW_REQUIRED",
+  "kind": "CONSOLIDATED_FOUNDATION_CONTRACT",
+  "title": "Venus programming contract v1",
+  "objective": "Promote a small set of backend-parameterized programming and ABI rules instead of promoting workload-specific failure stories.",
+  "promotion_target": [
+    "docs/knowledge/foundations/venus-user-guide.md",
+    "future static syntax/ABI gates"
+  ],
+  "base_digests": {
+    "docs/knowledge/foundations/venus-user-guide.md": "c58f5e1184385232bbcce0ebd0c7eb6805d4b56e2cda9e63812ec1dec81c6cbe",
+    "configs/backends/venus2p0-16x128.json": "24eecb93e178a5cacbaf82673e31a175823b5a72159e5cadb5a574f224c06bd3"
+  },
+  "contract_rules": [
+    {
+      "id": "manifest-owns-architecture",
+      "evidence_class": "CONTRACT",
+      "statement": "Resolve physical rows, lanes, bank width, memory limits, output limits, descriptor widths, task-call ABI, transfer alignment and engine paths from the selected backend manifest. Never encode Venus2 values as universal Venus syntax.",
+      "applicability": "all Venus backends",
+      "exclusions": "A manifest value is not automatically valid for another backend or RTL digest.",
+      "source_proposals": [
+        "20260817-scheduler-rtl-input-type-width",
+        "20260818-venus-dag-output-port-capacity",
+        "20260818-venus2-terminal-vector-coherence"
+      ],
+      "review_state": "READY_FOR_SHADOW_PATCH"
+    },
+    {
+      "id": "vector-capacity-active-elements-and-bytes",
+      "evidence_class": "HEADER_COMPILER",
+      "statement": "Treat the declared extended-vector length as capacity, pass the intrinsic's active element count explicitly, and express vreturn lengths in bytes. Keep i8/i16 element counts, allocation sizes and return byte lengths distinct.",
+      "applicability": "Venus C intrinsic and task-return code",
+      "exclusions": "Uncommon intrinsics must still be checked against the active headers.",
+      "source_proposals": [
+        "20260818-venus-dag-output-port-capacity",
+        "20260818-venus2-wide-vector-unroll-compatibility"
+      ],
+      "review_state": "READY_FOR_SHADOW_PATCH"
+    },
+    {
+      "id": "barrier-classification",
+      "evidence_class": "HEADER_COMPILER_PROBE",
+      "statement": "Use vbarrier by default at the canonical vector-to-scalar visibility boundary before VSPM_OPEN and bounded volatile access through vaddr. Ordinary register-vector dependencies do not justify a barrier. Classify every other barrier as a backend_workaround with an adjacent scope and focused regression.",
+      "applicability": "all Venus task sources",
+      "exclusions": "Whether a particular scratch-memory dependency needs a fence is backend-scoped empirical knowledge, not universal syntax.",
+      "source_proposals": [
+        "20260820-venus2-vector-scratch-barrier-boundary"
+      ],
+      "review_state": "READY_FOR_SHADOW_PATCH"
+    },
+    {
+      "id": "address-domain-separation",
+      "evidence_class": "COMPILER_PROBE",
+      "statement": "Track BAS ordinal, ELF VMA, combined-image offset, runtime LSU/VSPM address, descriptor address and temporary-pool offset as distinct domains. Do not infer that vaddr exposes later physical rows of an extended vector unless the selected backend proves that scalar range.",
+      "applicability": "task inputs, temporary vectors, scratch and task boundaries",
+      "exclusions": "A pointer spelling or adjacent allocation is not address-contiguity evidence.",
+      "source_proposals": [
+        "20260818-venus2-terminal-vector-coherence",
+        "20260818-dsl-static-dependency-input-order"
+      ],
+      "review_state": "READY_FOR_SHADOW_PATCH"
+    },
+    {
+      "id": "single-task-dag-abi",
+      "evidence_class": "COMPILER_BACKEND_CONTRACT",
+      "statement": "Treat the C signature, BAS positional call, compiler-serialized task inputs, Scheduler descriptors and ordered vreturn value/length pairs as one ABI. Confirm parameter placement in emitted code and reject stack arguments when the backend does not support them.",
+      "applicability": "Venus task generation and DAG integration",
+      "exclusions": "Successful Gem5 execution does not prove Scheduler or RTL task-call ABI compatibility.",
+      "source_proposals": [
+        "20260818-dsl-static-dependency-input-order",
+        "20260818-venus2-terminal-vector-coherence"
+      ],
+      "review_state": "READY_FOR_SHADOW_PATCH"
+    },
+    {
+      "id": "logical-to-physical-descriptor-mapping",
+      "evidence_class": "BACKEND_CONTRACT_RTL",
+      "statement": "Preserve logical DAG input types for ownership and hydration, then map them explicitly to backend physical source categories. Never truncate a logical type to the configured descriptor width; reject unsupported logical types before firmware handoff.",
+      "applicability": "Scheduler-bound Venus DAGs",
+      "exclusions": "The physical bit width and mapping values are backend-profile data.",
+      "source_proposals": [
+        "20260817-scheduler-rtl-input-type-width"
+      ],
+      "review_state": "READY_AFTER_STALE_TWO_BIT_PROPOSAL_IS_SUPERSEDED"
+    },
+    {
+      "id": "output-count-length-and-transfer-separation",
+      "evidence_class": "COMPILER_BACKEND_CONTRACT_RTL_PROBE",
+      "statement": "Audit output count, exact vreturn byte length, allocation/alignment, downstream descriptor length and DMA beat size independently. Preserve one semantic tensor as one output unless semantics, a focused compatibility probe or measured DAG performance justifies partitioning.",
+      "applicability": "task outputs and DAG temporaries",
+      "exclusions": "DMA beat size is neither output-port capacity nor proof that partial final beats are supported.",
+      "source_proposals": [
+        "20260818-venus-dag-output-port-capacity",
+        "20260818-venus2-terminal-vector-coherence"
+      ],
+      "review_state": "READY_FOR_SHADOW_PATCH"
+    },
+    {
+      "id": "explicit-observable-temporary",
+      "evidence_class": "OWNER_GUIDANCE_COMPILER",
+      "statement": "Use #pragma temp pin to express that an otherwise unconsumed, non-DAG-return task output must remain an observable validation checkpoint. Pinning does not create a dependency, change scheduling, export a DAG return or pin a vector register, and it can increase temporary-memory pressure.",
+      "applicability": "partial DAGs and deliberate intermediate checkpoints",
+      "exclusions": "The interaction with implicit auto-pin and redundant-warning policy remains unresolved.",
+      "source_proposals": [
+        "20260819-venus-temp-pin-observable-checkpoint"
+      ],
+      "review_state": "DEFER_PENDING_FOCUSED_POSITIVE_NEGATIVE_AND_MEMORY_PRESSURE_PROBES"
+    }
+  ],
+  "excluded_backend_specific_claims": [
+    "Venus2 numeric limits and absolute addresses",
+    "Venus2 partial-final-beat deployment behavior",
+    "the current Polar scratch fence locations",
+    "completion polling behavior",
+    "compiler-version-specific vcmxmul or full-Z failures"
+  ],
+  "shadow_patch": {
+    "status": "NOT_GENERATED",
+    "requirement": "Generate one exact patch against the recorded foundation digest after rule-by-rule human scope review."
+  },
+  "promotion_conditions": [
+    "Approve or defer each contract_rules item independently",
+    "Generate an exact shadow patch containing only accepted items",
+    "Run syntax/ABI positive and negative regressions for rules exercised by executable gates",
+    "Bind the human receipt to this proposal digest, shadow-patch digest and base digests",
+    "Create a reversible local commit; do not push or merge without separate approval"
+  ],
+  "source_evidence_policy": "The original workload-specific proposals remain immutable evidence records and are not individually promoted.",
+  "vemu_used": false
+}

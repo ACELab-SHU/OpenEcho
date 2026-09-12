@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "scope": "PDSCH DMRS indices R1 time-base regression; not an RTL execution result",
+  "rtl_clock_sources": {
+    "aclk": {
+      "period": "4ns",
+      "frequency": "250MHz",
+      "role": "AXI/L2 staging and scheduler-facing interfaces",
+      "source": "../venus_soc/sim/testbenches/testbench_postsyn_tile.sv:261-268"
+    },
+    "tileclk": {
+      "period": "2ns",
+      "frequency": "500MHz",
+      "role": "selected block clock during task execution: scalar, Venus and local memories",
+      "source": "../venus_soc/sim/testbenches/testbench_postsyn_tile.sv:270-278,876-930; ../venus_soc/hardware/soc_hierachy/venus_block_wrapper.sv:148-169"
+    }
+  },
+  "source_changes": {
+    "cycle_parameterization": {
+      "objects": ["VenusSequencer", "VenusLane", "VenusPacketGen", "VenusDagScheduler"],
+      "mechanism": "ClockedObject plus cyclesToTicks/clockEdge scheduling instead of hard-coded 1000-tick intervals",
+      "default_1ghz_result": "PASS: generated Params inherit ClockedObjectParams and all R1 functional/timing artifacts remain byte-exact"
+    },
+    "scheduler_phase_normalization": {
+      "mechanism": "VenusDagScheduler stepEvent uses clockEdge(cycles), so scheduler-owned work is consumed on the scheduler clock edge after a tile-origin task exit",
+      "limit": "This is edge normalization, not an RTL CDC, AXI-DMA, or synchronization-latency model."
+    }
+  },
+  "default_1ghz_regression": {
+    "profile": "venus-rtl-16x128",
+    "outdir": "/tmp/rtl_gem5_pdsch2p0_r1/phase_regression_default_isolated",
+    "golden_outdir": "/tmp/rtl_gem5_pdsch2p0_r1/timebase_r1",
+    "sim_ticks": 37894000,
+    "results": {
+      "returned_ports": "PASS: 5/5 byte-exact",
+      "vsadd_dumps": "PASS: 6/6 byte-exact",
+      "dag_trace": "PASS: byte-exact",
+      "sequencer_monitor": "PASS: byte-exact",
+      "cpu_debug_log": "PASS: byte-exact"
+    }
+  },
+  "dualclock_rebase_regression": {
+    "profile": "venus-rtl-16x128-dualclock-rebase",
+    "outdir": "/tmp/rtl_gem5_pdsch2p0_r1/phase_regression_dual_isolated",
+    "topology": {
+      "system_axi_clock": "250MHz / 4000 ticks",
+      "tile_clock": "500MHz / 2000 ticks",
+      "tile_objects": ["MinorCPU", "VenusSequencer", "VenusShufflePipline", "16 VenusLane objects", "lane XBAR", "bank/mask SRAMs", "tile_dspm"],
+      "system_objects": ["VenusDagScheduler", "membus", "physmem"]
+    },
+    "delay_rebase": {
+      "purpose": "Preserve the old GEM5 cycle counts while changing clock frequency; these are not RTL-measured delays.",
+      "logical_vspm": "6ns -> 12ns",
+      "tile_dspm": "6/1/2ns -> 12/2/4ns",
+      "bank_and_mask_sram": "30/1/1ns -> 60/2/2ns"
+    },
+    "sim_ticks": 85256000,
+    "functional_results": {
+      "returned_ports": "PASS: VEMU/GEM5 5/5 bit-exact",
+      "vsadd_dumps": "PASS: VEMU/GEM5 6/6 bit-exact"
+    },
+    "phase_checks": {
+      "cpu_tick_lines": 663815,
+      "cpu_rule": "PASS: every system.cpu event tick is divisible by 2000",
+      "scheduler_trace_lines": 15,
+      "scheduler_rule": "PASS: 14 scheduler-owned trace events are divisible by 4000",
+      "tile_origin_exception": "task_epilogue at tick 85250000 is a 500MHz tile-origin notification and is intentionally not counted as a scheduler-edge event"
+    }
+  },
+  "acceptance_boundary": "The structural time base and scheduler event phase are now observable and regression-tested. RTL R1 execution/trace remains unavailable, so there is no L2/L3 or RTL functional/timing pass claim."
+}

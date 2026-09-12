@@ -1,0 +1,125 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260820-venus-performance-design-principles-v1",
+  "date": "2026-08-20",
+  "status": "REVIEW_REQUIRED",
+  "kind": "CONSOLIDATED_PERFORMANCE_METHOD",
+  "title": "Venus high-performance design principles v1",
+  "objective": "Promote portable optimization thinking and search prompts without promoting backend-specific cycle values, syntax failures or hardware constants.",
+  "promotion_target": [
+    "docs/knowledge/live/registry.json",
+    "reviewed performance-search prompts"
+  ],
+  "base_digests": {
+    "docs/knowledge/seed-prompts.json": "3227aa87d68f3959d748c038bc57ea4a52109eaf5e33551262e748e0a4ba8766",
+    "docs/knowledge/live/registry.json": "9105e2a95512de9d2021f7b85d0f0979832fe7a9ab8b6e08b68749f6fb963238"
+  },
+  "principles": [
+    {
+      "id": "reformulate-from-numeric-contract",
+      "statement": "Start from the fixed-point numerical contract and data dependencies, not from the scalar source control flow. Search for an equivalent formulation around the active backend's vector, complex, mask, shuffle and reduction operations.",
+      "falsification": "Reject when intermediate widths, rounding, saturation, state or visible checkpoints differ.",
+      "source_evidence": [
+        "OAI CE vectorization family",
+        "PDCCH CCH vector rewrite",
+        "PBCH boundary experiments"
+      ]
+    },
+    {
+      "id": "vectorize-largest-regular-payload-dimension",
+      "statement": "Map the largest legal regular dimension—RE, subcarrier, symbol, antenna, layer, code-block element or independent batch—to useful long vectors. Keep scalar work for configuration, address setup and measured irregular tails rather than payload traversal.",
+      "falsification": "Inspect emitted and dynamic instruction mix; allocation/copy/return vectors around a scalar payload loop do not qualify as vectorization.",
+      "source_evidence": [
+        "OAI MIMO CE variants",
+        "PDCCH CCH vector front end and Polar decomposition",
+        "historical scalar CCH baseline"
+      ]
+    },
+    {
+      "id": "co-design-layout-and-compute",
+      "statement": "Transform static layouts and batch structure to create continuous vector transfers, then use in-register shuffle or masks for rearrangement. Avoid repeated short transfers and scalar gather when layout can make the hot path regular.",
+      "falsification": "Measure transfer count, instruction mix and integrated cycles; reject a layout that only moves cost to another DAG stage.",
+      "source_evidence": [
+        "PDSCH/PDCCH serialized-input and row-port experiments",
+        "multi-row PBCH/CCH output experiments"
+      ]
+    },
+    {
+      "id": "reduce-live-range-before-reducing-parallelism",
+      "statement": "Before shrinking useful vector length or spilling, delay claims, end temporary lifetimes early, reuse dead vectors, reduce retained outputs and inspect compiler-created temporaries.",
+      "falsification": "Use row/liveness estimates plus compile probes; a compiler failure is a scoped counterexample, not proof that the intrinsic or all wide vectors are unsupported.",
+      "source_evidence": [
+        "vcmxmul live-pressure failures",
+        "LDPC wide-vector and full-Z failures"
+      ]
+    },
+    {
+      "id": "remove-synchronization-by-class",
+      "statement": "Treat barriers and other serialization as optimization candidates by dependency class. Remove one class at a time, compare every checkpoint, and retain only measured correctness-required boundaries.",
+      "falsification": "The first intermediate mismatch rejects the candidate even if final output occasionally matches; fewer barriers alone is not a performance claim.",
+      "source_evidence": [
+        "CCH barrier B000-C005 search"
+      ]
+    },
+    {
+      "id": "specialize-small-validated-domains",
+      "statement": "When a hot runtime control has a small frozen legal domain, test generated per-value specialization, fixed expansion and static precomputation while preserving a complete configuration matrix and an explicit fallback or rejection boundary.",
+      "falsification": "Reject branch drift, excessive code/live pressure or any configuration-specific golden mismatch; rank only same-matrix measurements.",
+      "source_evidence": [
+        "OAI CE 60-case specialization matrix",
+        "fixed-shape PDCCH Polar decomposition"
+      ]
+    },
+    {
+      "id": "optimize-the-integrated-dag",
+      "statement": "Profile the complete DAG critical path, data movement, parallel scheduling, task boundaries and temporary lifetimes. Fusion, splitting and stage movement are hypotheses whose value must be remeasured after integration.",
+      "falsification": "A faster isolated replay does not qualify when integrated cycles regress or an exposed intermediate changes.",
+      "source_evidence": [
+        "CCH 14-task integrated measurements",
+        "PBCH/PDCCH task-boundary experiments"
+      ]
+    },
+    {
+      "id": "correctness-gated-ai-search",
+      "statement": "Change one falsifiable hypothesis per candidate. Build independently, run Gem5 fast, compare all visible outputs, rank only same-key correct candidates, verify the integrated winner, and send only that winner to fresh immutable RTL.",
+      "falsification": "Compile success, zero exit status, final CRC alone, source line count or host wall time cannot qualify or rank a candidate.",
+      "source_evidence": [
+        "ACE-ECHO Forge CCH candidate search",
+        "CE specialization search",
+        "LDPC rejected-candidate catalogue"
+      ]
+    },
+    {
+      "id": "turn-failures-into-minimal-probes",
+      "statement": "When Gem5, compiler or RTL diverges, freeze inputs and firmware, locate the first failing checkpoint or event, and reduce it to the smallest positive/negative probe. Reuse only the abstract hypothesis across backends.",
+      "falsification": "Do not promote a workaround without a scoped counterexample and do not modify RTL or simulator semantics to make one workload pass.",
+      "source_evidence": [
+        "CCH scratch-barrier counterexample",
+        "RTL preflight evaluator mismatch",
+        "PBCH ABI and output-transport diagnosis"
+      ]
+    }
+  ],
+  "non_transferable_items": [
+    "absolute addresses",
+    "Venus2 row/lane/output constants",
+    "individual cycle numbers",
+    "compiler-version failure fingerprints as universal bans",
+    "specific barrier locations",
+    "Scheduler completion behavior"
+  ],
+  "evidence_threshold": "A general performance prompt requires at least two independent workloads or shape classes; each use begins as an unverified hypothesis on a new backend.",
+  "shadow_patch": {
+    "status": "NOT_GENERATED",
+    "requirement": "Generate exact live-registry/prompt changes only after the principles and applicability boundaries are accepted."
+  },
+  "promotion_conditions": [
+    "Review each principle independently",
+    "Bind every promoted prompt to its applicability and falsification text",
+    "Replay at least two evidence families for any prompt making a general effectiveness claim",
+    "Do not copy backend-scoped metrics into live portable knowledge",
+    "Bind human acceptance to proposal, shadow patch and base digests"
+  ],
+  "source_evidence_policy": "Original proposals remain evidence and counterexamples; they do not become live prompts by themselves.",
+  "vemu_used": false
+}

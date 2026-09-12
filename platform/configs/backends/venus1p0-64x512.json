@@ -1,0 +1,462 @@
+{
+  "schema": "ace-echo-backend-manifest/v1",
+  "backend_id": "venus1p0-64x512",
+  "display_name": "Venus 1.0, 64 lanes x 512 rows",
+  "architecture": {
+    "generation": "1.0",
+    "rows": 512,
+    "lanes": 64,
+    "banks_per_lane": 4,
+    "bank_width_bits": 16,
+    "vector_scratch_bytes": 262144,
+    "program_sram_bytes": 32768,
+    "shared_sram_bytes": 524288,
+    "workspace_alignment_bytes": 64,
+    "workspace_limit_bytes": 524288,
+    "supported_element_width_bits": [8, 16]
+  },
+  "abi": {
+    "task_input_descriptor": {
+      "physical_type_bits": 2,
+      "logical_to_physical_type": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "4": 0,
+        "5": 1,
+        "6": 2
+      },
+      "rtl_unsupported_logical_types": [4, 5, 6],
+      "source_address_bits": 28,
+      "length_bits": 16,
+      "rtl_evidence": "hardware/L2_scheduler/l2_scheduler_pkg.sv:35-47"
+    },
+    "task_call": {
+      "register_argument_count": 8,
+      "stack_arguments_supported": false
+    },
+    "task_container": {
+      "includes_spmd_fields": false,
+      "rtl_evidence": "hardware/L2_scheduler/l2_scheduler_pkg.sv:48-57"
+    },
+    "scheduler_output": {
+      "max_task_outputs": 16,
+      "max_dag_outputs": 8,
+      "max_dag_outputs_rtl_evidence": "hardware/L2_scheduler/l2_scheduler_pkg.sv:40",
+      "task_return_length_bits": 32,
+      "vreturn_length_unit": "bytes",
+      "variable_length_outputs": true,
+      "dma_beat_bytes": 64,
+      "descriptor_response_lag_ports": 0,
+      "descriptor_transfer_chunk_bytes": 64,
+      "completion_poll_fallback": false,
+      "completion_poll_interval": 4096
+    }
+  },
+  "paths": {
+    "dsl_root": "../../components/toolchain/dsl",
+    "workload_root": "../../workloads/5g_lite",
+    "gem5_root": "../../components/gem5",
+    "scheduler_root": "../../components/scheduler",
+    "rtl_root": "/home/shenyihao/Project/Venus/venus_soc"
+  },
+  "repositories": {
+    "rtl": {
+      "required_branch": "venus0802top_1129",
+      "required_commit": "a34a99aeb9245e01178d7a357c226e87a4249aef",
+      "required_clean": true,
+      "config_sha256": "01b6968f0bd0717e93171655ec54751e28adf6a490d12d508223ce2c8fd5e3f7"
+    }
+  },
+  "execution_policy": {
+    "forbidden_engines": ["vemu"],
+    "fast_search_engine": "gem5.fast",
+    "full_software_engine": "gem5.fast",
+    "diagnostic_engine": "gem5.verification",
+    "hardware_engine": "rtl",
+    "rtl_only_after_full_software_pass": true,
+    "rtl_only_for_integrated_winner": true
+  },
+  "clock_contracts": {
+    "current_devctrl": {
+      "gem5_venus_config": "venus1p0-64x512",
+      "system_axi_hz": 150000000,
+      "tile_hz": 150000000,
+      "selection": "GC0802_DEBUG[8]=0 selects aclk",
+      "firmware": "configs/backends/venus1p0-devctrl-init.inc"
+    },
+    "legacy_bpll": {
+      "gem5_venus_config": "venus1p0-64x512-legacy-bpll",
+      "system_axi_hz": 150000000,
+      "tile_hz": 300000000,
+      "selection": "GC0802_DEBUG[8] remains at reset value 1 and selects block_clk",
+      "qualification_scope": "native Venus1 LTE firmware only; must be selected explicitly from firmware evidence"
+    }
+  },
+  "engines": {
+    "toolchain": {
+      "venus_llvm_bin": "/home/xusiyi/new/llvm-project-cmake-build-debug/bin",
+      "riscv_gcc_root": "/server17/ic/riscv32im",
+      "compiler_identity": {
+        "llvm_version": "15.0.7",
+        "source_revision": "27fdd688584d87b64ab8a565bbfb1e0f16406bd4"
+      },
+      "make_variables": {
+        "VENUSROW": 512,
+        "VENUSLANE": 64
+      }
+    },
+    "scheduler": {
+      "build_target": "venus",
+      "linker_script": "venus1p0-l1.ld",
+      "configure_dcache_end": false,
+      "enable_ctrl_iopads": true,
+      "pll_helper_body": "venus1p0-pll-helper.inc",
+      "devctrl_init_body": "venus1p0-devctrl-init.inc"
+    },
+    "gem5": {
+      "fast": {
+        "binary": "build/RISCV/gem5.opt",
+        "config": "configs/tutorial/part1/packet_gen.py",
+        "venus_config": "venus1p0-64x512",
+        "claim_scope": "fast_functional_search"
+      },
+      "verification": {
+        "binary": "build/RISCV/gem5.debug",
+        "config": "configs/tutorial/part1/packet_gen.py",
+        "venus_config": "venus1p0-64x512",
+        "claim_scope": "full_gem5_verification_unqualified_timing"
+      }
+    },
+    "rtl": {
+      "source_immutable": true,
+      "fresh_build_required": true,
+      "required_repository_identity": true,
+      "generated_output_allowlist": [
+        "sim/build_*/**"
+      ],
+      "preflight": {
+        "required_tools": ["vlogan", "vcs"],
+        "license_environment": [
+          "LM_LICENSE_FILE",
+          "SNPSLMD_LICENSE_FILE"
+        ],
+        "license_connect_timeout_seconds": 1.0,
+        "systemverilog_function_arity": [
+          {
+            "id": "overall-imem-shortcut-ceil-div-api",
+            "function": "ceil_div",
+            "declaration_file": "sim/model/peripherals/gc0802pad_imem_shortcut.svh",
+            "call_files": [
+              "sim/model/peripherals/gc0802pad_imem_shortcut.svh"
+            ]
+          }
+        ]
+      },
+      "flow": {
+        "snapshot_excludes": [
+          ".git",
+          "sim/build_*"
+        ],
+        "snapshot_dependencies": {
+          "copy_overlays": [
+            {
+              "source": "/home/shenyihao/Project/RTL/venus_soc/hardware/fabric/ip",
+              "destination": "hardware/fabric/ip",
+              "classification": "generated_fabric_simulation_sources",
+              "leaf_subdirectories": ["src"]
+            },
+            {
+              "source": "/home/shenyihao/Project/RTL/venus_soc/hardware/mbist",
+              "destination": "hardware/mbist",
+              "classification": "matching_generated_mbist_cache"
+            }
+          ],
+          "text_edits": [
+            {
+              "path": "hardware/fabric/tcl/venus_cluster_axi4.tcl",
+              "remove_exact_lines": [
+                "autocomplete_activity  SpecifyPortConstraints"
+              ],
+              "reason": "R-2020.12-SP4 rejects replaying this already-expanded automation step; the explicit port constraints that follow remain intact."
+            },
+            {
+              "path": "hardware/fabric/tcl/venus_gc0802_apb.tcl",
+              "remove_exact_lines": [
+                "autocomplete_activity  SpecifyPortConstraints"
+              ],
+              "reason": "R-2020.12-SP4 rejects replaying this already-expanded automation step; the V1 11-bit AXI-ID configuration and explicit port constraints remain intact."
+            },
+            {
+              "path": "hardware/fabric/tcl/venus_gc0802_flash_apb.tcl",
+              "remove_exact_lines": [
+                "autocomplete_activity  SpecifyPortConstraints"
+              ],
+              "reason": "R-2020.12-SP4 rejects replaying this already-expanded automation step; the V1 11-bit AXI-ID configuration and explicit port constraints remain intact."
+            },
+            {
+              "path": "hardware/fabric/tcl/venus_cluster_axi4_to_apb.tcl",
+              "remove_exact_lines": [
+                "autocomplete_activity  SpecifyPortConstraints"
+              ],
+              "reason": "R-2020.12-SP4 rejects replaying this already-expanded automation step; the V1 12-bit AXI-ID configuration and explicit port constraints remain intact."
+            }
+          ],
+          "generated_path_rewrites": [
+            {
+              "glob": "hardware/fabric/ip/**/*.lst",
+              "old": "/home/huhaiqin/venus_soc_lsu/venus_soc/hardware/fabric/ip",
+              "new": "{snapshot}/hardware/fabric/ip",
+              "required": true
+            }
+          ],
+          "pre_build_make": [
+            {
+              "target": "fabric_single",
+              "variables": {"CC_FABRIC": "venus_cluster_axi4"},
+              "expected_output": "hardware/fabric/ip/venus_cluster_axi4/src"
+            },
+            {
+              "target": "fabric_single",
+              "variables": {"CC_FABRIC": "venus_gc0802_axi"},
+              "expected_output": "hardware/fabric/ip/venus_gc0802_axi/src"
+            },
+            {
+              "target": "fabric_single",
+              "variables": {"CC_FABRIC": "venus_gc0802_apb"},
+              "expected_output": "hardware/fabric/ip/venus_gc0802_apb/src"
+            },
+            {
+              "target": "fabric_single",
+              "variables": {"CC_FABRIC": "venus_gc0802_flash_apb"},
+              "expected_output": "hardware/fabric/ip/venus_gc0802_flash_apb/src"
+            },
+            {
+              "target": "fabric_single",
+              "variables": {"CC_FABRIC": "venus_cluster_axi4_to_apb"},
+              "expected_output": "hardware/fabric/ip/venus_cluster_axi4_to_apb/src"
+            }
+          ],
+          "qualification_note": "Five V1-specific AXI/interconnect bridges are freshly generated from the V1 Tcl contracts; compatible configuration-identical generated dependencies are copied into the immutable run-local snapshot."
+        },
+        "firmware_destinations": [
+          "software/scheduler/l1.bin",
+          "software/gatesim/gc0802_overall/{case_name}/l1.bin"
+        ],
+        "fresh_build_target": "sim_compileall",
+        "replay_target": "sim_nocompile",
+        "task_boundary_trace": {
+          "mode": "testbench_edge_log",
+          "testbench_source": "sim/testbenches/test_gc0802_overall.sv",
+          "output": "task_execution_timing.log",
+          "tiles": [
+            {
+              "tile": 0,
+          "reset_signal": "tb.pad.dut.u_venus_cluster0.u_venus_cluster0_tile0.tile_soft_reset_n",
+          "task_signal": "tb.pad.dut.u_venus_cluster0.u_venus_cluster0_tile0.u_venus_tile_manager.venustile_currenttaskidreg",
+          "sequencer_module": "venus_cluster0_tile0_sequencer",
+          "sequencer_running_port": "pe_vinsn_running_o",
+          "sequencer_running_ids": 8
+            },
+            {
+              "tile": 1,
+          "reset_signal": "tb.pad.dut.u_venus_cluster0.u_venus_cluster0_tile1.tile_soft_reset_n",
+              "task_signal": "tb.pad.dut.u_venus_cluster0.u_venus_cluster0_tile1.u_venus_tile_manager.venustile_currenttaskidreg"
+            }
+          ],
+          "shuffle_phase_observers": [
+            {
+              "module": "venus_cluster0_tile0_shuffle_engine",
+              "clock_signal": "clk_i",
+              "reset_signal": "rst_ni",
+              "state_signal": "state_q",
+              "done_signal": "ShuffleUnit_vinsn_done",
+              "grant_signal": "shuffle_result_gnt_i",
+              "id_signal": "vinsn_queue_q.vinsn[vinsn_queue_q.issue_pnt].id",
+              "vm_r_signal": "vinsn_queue_q.vinsn[vinsn_queue_q.issue_pnt].vm_r",
+              "vew_signal": "vinsn_queue_q.vinsn[vinsn_queue_q.issue_pnt].vew",
+              "vl_signal": "vinsn_queue_q.vinsn[vinsn_queue_q.issue_pnt].vl",
+              "lane_count": 64,
+              "pe_count": 64,
+              "id_width": 3,
+              "vl_width": 16,
+              "state_width": 4,
+              "vew_width": 2
+            }
+          ],
+          "lane_resource_observers": [
+            {
+              "module": "venus_cluster0_tile0_lane",
+              "clock_signal": "clk_i",
+              "reset_signal": "rst_ni",
+              "lane_id_signal": "lane_id_i",
+              "lane_id_width": 6,
+              "observed_lane": 0,
+              "pe_valid_signal": "pe_req_valid_i",
+              "pe_ready_signal": "pe_req_ready_o",
+              "operand_valid_signal": "operand_req_valid_ls_or",
+              "operand_ready_signal": "operand_req_ready_or_ls",
+              "operand_width": 8,
+              "operand_queue_valid_signal": "operand_queue_cmd_valid_or_oq",
+              "operand_queue_ready_signal": "operand_queue_ready_oq_or",
+              "mask_valid_signal": "operand_mask_req_valid_ls_vm",
+              "mask_ready_signal": "operand_mask_req_ready_vm_ls",
+              "vrf_req_signal": "vrf_req_or_dspm",
+              "vrf_wen_signal": "vrf_wen_or_dspm",
+              "bank_width": 4,
+              "vrf_arb_req_signal": "u_operand_requester.operand_req",
+              "vrf_arb_gnt_signal": "u_operand_requester.operand_gnt",
+              "vrf_arb_width": 48,
+              "hazard_vs1_signal": "pe_req_i.hazard_vs1",
+              "hazard_vs2_signal": "pe_req_i.hazard_vs2",
+              "hazard_vd1_signal": "pe_req_i.hazard_vd1",
+              "hazard_vd2_signal": "pe_req_i.hazard_vd2",
+              "hazard_width": 8,
+              "vfu_valid_signal": "vfu_operation_valid_ls_vfu",
+              "vfu_id_signal": "vfu_operation_ls_vfu.id",
+              "vfu_op_signal": "vfu_operation_ls_vfu.op",
+              "id_width": 3,
+              "op_width": 6,
+              "vm_r_signal": "vfu_operation_ls_vfu.vm_r",
+              "vm_w_signal": "vfu_operation_ls_vfu.vm_w",
+              "bitalu_ready_signal": "bitalu_ready_vfu_ls",
+              "cau_ready_signal": "cau_ready_vfu_ls",
+              "serdiv_ready_signal": "serdiv_ready_vfu_ls",
+              "bitalu_grant_signal": "bitalu_result_gnt_oq_vfu",
+              "cau_grant_signal": "cau_result_gnt_oq_vfu",
+              "serdiv_grant_signal": "serdiv_result_gnt_oq_vfu"
+            }
+          ],
+          "sequencer_ready_observers": [
+            {
+              "module": "venus_cluster0_tile0_sequencer",
+              "clock_signal": "clk_i",
+              "reset_signal": "rst_ni",
+              "ready_vector_signal": "pe_req_ready_i",
+              "ready_width": 65,
+              "pe_valid_signal": "pe_req_valid_o",
+              "state_signal": "state",
+              "state_width": 4,
+              "op_signal": "venus_req_i_transffered_q.op",
+              "op_width": 6,
+              "upstream_valid_signal": "venus_req_valid_i",
+              "upstream_ready_signal": "venus_req_ready_o",
+              "running_full_signal": "vinsn_running_full",
+              "lane_desync_signal": "stall_lanes_desynch",
+              "queue_ready_signal": "vinsn_queue_ready",
+              "queue_done_signal": "insn_queue_done",
+              "queue_counts_signal": "insn_queue_cnt_q",
+              "target_vfus_signal": "target_vfus_vec",
+              "accepted_signal": "accepted_insn",
+              "queue_width": 5,
+              "queue_counts_width": 15
+            }
+          ],
+          "scalar_retire_observers": [
+            {
+              "module": "spiritrv32_scalar_core_wrapper",
+              "clock_signal": "clk",
+              "reset_signal": "resetn",
+              "valid_signal": "u_scalar600_core.wb_stage_i.wb_debug_valid",
+              "pc_signal": "u_scalar600_core.wb_stage_i.wb_pc",
+              "instruction_signal": "u_scalar600_core.wb_stage_i.wb_inst"
+            }
+          ],
+          "scalar_dispatch_observers": [
+            {
+              "module": "spiritrv32_scalar_core_wrapper",
+              "clock_signal": "clk",
+              "reset_signal": "resetn",
+              "valid_signal": "pico2venus_valid",
+              "ready_signal": "venus2pico_ready",
+              "msb_instruction_signal": "pico2venus_req.insn.msb_insn",
+              "lsb_instruction_signal": "pico2venus_req.insn.lsb_insn",
+              "id_instruction_signal": "u_scalar600_core.id_stage_i.id_inst",
+              "vec_msb_load_signal": "u_scalar600_core.id_stage_i.vec_msb_load",
+              "vec_lsb_load_wait_signal": "u_scalar600_core.id_stage_i.vec_lsb_load_wait",
+              "vec_lsb_load_signal": "u_scalar600_core.id_stage_i.vec_lsb_load",
+              "instr_vector_signal": "u_scalar600_core.id_stage_i.instr_vector",
+              "uncomplete_signal": "u_scalar600_core.id_stage_i.uncomplete",
+              "stall_signal": "u_scalar600_core.id_stage_i.stall_req",
+              "vector_wait_signal": "u_scalar600_core.id_stage_i.vector_wait_req"
+            }
+          ]
+        },
+        "make_variables": {
+          "SIM_NAME": "gc0802_",
+          "TESTBENCH_NAME": "overall",
+          "SIM_TYPE": "simonly"
+        },
+        "runtime_case_variable": "TARGET_BIN_FILE_NAME",
+        "unique_build_variable": "COPY_ID",
+        "path_prepend": [
+          "/server17/ic/synopsys/coretools/R-2020.12-SP4/bin",
+          "/server17/ic/synopsys/vcs-mx/O-2018.09-SP2-11/bin"
+        ],
+        "required_environment": {
+          "VCS_HOME": "/server17/ic/synopsys/vcs-mx/O-2018.09-SP2-11",
+          "DESIGNWARE_HOME": "/server17/ic/synopsys/package",
+          "SLI_USER_SLISERV_PATH": "/server17/ic/synopsys/package/vip/common/latest/C/lib/amd64/sliserv",
+          "LM_LICENSE_FILE": "27000@localhost",
+          "SNPSLMD_LICENSE_FILE": "27000@localhost"
+        },
+        "progress_markers": {
+          "boot": "GPIO0",
+          "main_entry": "GPIO1",
+          "dag_complete": "GPIO2",
+          "crc_complete": "GPIO3",
+          "crc_failure": "GPIO4"
+        },
+        "known_nonfunctional_simulator_errors": [
+          {
+            "id": "v1-devctrl-mbist-decode-time-zero-toggle",
+            "line_contains": [
+              "hardware/soc_hierachy/venus_gc0802_ccm_devctrl/venus_gc0802_devctrl.sv",
+              "at time 0 ps"
+            ],
+            "next_line_equals": "regen_mbist_enable_done2 toggle unexpectedly",
+            "rtl_evidence": "hardware/soc_hierachy/venus_gc0802_ccm_devctrl/venus_gc0802_devctrl.sv:257-260"
+          }
+        ],
+        "evidence_paths": [
+          "sim.log",
+          "L2_DMA_trx.log",
+          "dma_read_data_file_L1.txt",
+          "dma_read_data_file_L2.txt",
+          "L2_scheduler_task_allocation_info.txt",
+          "vins_result/**"
+        ]
+      },
+      "claim_scope": "rtl_repository_native_crc_smoke_then_all_visible_exact"
+    }
+  },
+  "correctness_scopes": [
+    "gem5_task_output_exact",
+    "gem5_dag_task_boundary_exact",
+    "gem5_final_dag_output_exact",
+    "rtl_all_visible_outputs_exact"
+  ],
+  "performance": {
+    "primary_metric": "gem5_ticks",
+    "direction": "minimize",
+    "fast_profile_rankable": true,
+    "verification_profile_required_for_winner": false,
+    "wall_clock_rankable": false,
+    "rtl_timing_status": "UNQUALIFIED_UNTIL_V1_MICROBENCH_AND_DAG_AB"
+  },
+  "static_gates": {
+    "require_contiguous_memory_operations": true,
+    "require_equal_declared_vector_types": true,
+    "require_i16_shuffle_indices": true,
+    "initialized_task_global_data_requires_address_audit": true,
+    "check_physical_row_encoding": true,
+    "check_lsu_boundary_crossing": true,
+    "check_task_call_register_abi": true,
+    "check_task_output_count_and_lengths": true
+  },
+  "knowledge": {
+    "foundation": "docs/knowledge/foundations/venus-user-guide.md",
+    "seed_prompts": "docs/knowledge/seed-prompts.json",
+    "live_registry": "docs/knowledge/live/registry.json"
+  }
+}

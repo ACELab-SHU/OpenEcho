@@ -1,0 +1,6 @@
+*
+!.gitignore
+!Makefile
+!map_variable.py
+!variable.ld
+

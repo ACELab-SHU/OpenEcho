@@ -1,0 +1,27 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260817-rtl-testbench-api-preflight",
+  "status": "PENDING_HUMAN_REVIEW",
+  "backend_id": "venus2p0-16x128",
+  "category": "correctness_gate",
+  "proposed_rule": "Before a fresh RTL build, run backend-configured read-only API compatibility checks across the selected testbench and its included models. An evaluator API failure blocks qualification but is not a software/hardware numerical mismatch.",
+  "prompt": "Before launching VCS, inspect the configured RTL evaluator entry point and all included scoreboard/model APIs. Verify declaration/call arity, preserve file digests and line evidence, and stop before simulation if the evaluator is internally incompatible.",
+  "scope": "fresh RTL qualification entry points configured by a backend manifest",
+  "evidence": {
+    "workload": "workloads/5g_lite/tasks/oai_nr_pdcch_cch_multirx_venus2",
+    "rtl_repository_commit": "9d81a5261f78078947162e9f72c0387acb5174f7",
+    "declaration": "sim/model/venus_extension/internal_model.sv:1069",
+    "declaration_arity": 2,
+    "declaration_change_commit": "270015899b676aa1233ed5fa0198db12fa1e116d",
+    "call": "sim/testbenches/testbench_gc0802_boot.sv:861",
+    "call_arity": 1,
+    "call_change_commit": "253f2c51d3bb9223c2745d2eb02a37ccde1f6c52",
+    "vcs_result": "elaboration failed before simulation and before any CCH task executed",
+    "preflight_report_sha256": "38101cd5a973d7208bb9d45cc753a2233d58fbaa0975aee51a50ec5a7516a9f4"
+  },
+  "limitations": [
+    "The current checker validates configured SystemVerilog function arity, not full language semantics.",
+    "A passing preflight does not replace fresh RTL compilation, simulation, or output comparison.",
+    "The observed failure is in the RTL evaluator and cannot establish deployment behavior for the CCH DAG."
+  ]
+}

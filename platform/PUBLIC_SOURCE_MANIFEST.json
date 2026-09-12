@@ -1,0 +1,53 @@
+{
+  "schema": "ace-echo-public-source/v1",
+  "version": "1.0.0",
+  "source_revisions": {
+    "platform": "2e20b3996270c7b7c62c83e037baff078cacb882",
+    "dsl": "91f4579a187890e58f2ee225bb35b29762967632",
+    "workloads": "e53bb0fcf2e4c272604c4b0f17ed65c77fc6cf4b"
+  },
+  "workload_paths": [
+    "5g_lite/include",
+    "5g_lite/tasks/nrPBCH",
+    "5g_lite/tasks/nrPDCCH",
+    "5g_lite/tasks/ltePBCHDag1_hw",
+    "5g_lite/tasks/ltePBCHDag2_hw",
+    "5g_lite/tasks/ltePCFICH",
+    "5g_lite/tasks/ltePDCCHDag1_hw",
+    "5g_lite/tasks/ltePDCCHDag2_hw",
+    "5g_lite/tasks/ltePDSCH",
+    "5g_lite/tasks/forge_vector_smoke"
+  ],
+  "distribution": "Revision-pinned source snapshots; no internal Git service required.",
+  "external_prerequisites": [
+    "Venus-custom LLVM",
+    "RISC-V GCC"
+  ],
+  "rtl_distributed": false,
+  "excluded_historical_artifacts": [
+    {
+      "path": "components/gem5/debug.logf",
+      "sha256": "e0980abf01f843daf24e8c8c5ddc523fb54bd1ce690f8ae7f488cbfa4cbff806"
+    }
+  ],
+  "omitted_nonruntime_files": [
+    "platform/components/scheduler/dags/golden/nrPDCCH_tv9/DAGRet_crc_result.log",
+    "platform/components/scheduler/dags/golden/nrPDCCH_tv9/DAGRet_dci.log",
+    "platform/components/scheduler/dags/golden/nrPDCCH_tv9/DAGRet_pdcchbits.log",
+    "platform/components/scheduler/dags/golden/nrPDCCH_tv9/DAGRet_pdsch_config.log",
+    "platform/components/scheduler/dags/golden/nrPDCCH_tv9/DAGRet_pdsch_start_symbol.log",
+    "platform/components/scheduler/dags/golden/nrPDCCH_tv9/DAGRet_pdsch_symbol_length.log",
+    "platform/workloads/5g_lite/tasks/forge_vector_smoke/__pycache__/reference.cpython-38.pyc",
+    "platform/workloads/5g_lite/tasks/forge_vector_smoke/__pycache__/run.cpython-38.pyc",
+    "platform/workloads/5g_lite/tasks/forge_vector_smoke/__pycache__/test_smoke.cpython-38.pyc",
+    "platform/workloads/5g_lite/tasks/ltePBCHDag2_hw/Task_ltePBCHChanneldecode.c.bk",
+    "platform/workloads/5g_lite/tasks/ltePCFICH/ltePCFICH.bas.bk",
+    "platform/workloads/5g_lite/tasks/nrPBCH/PBCH.bas.bk",
+    "platform/workloads/5g_lite/tasks/nrPBCH/Task_iBar_SSB_Search.c.bkbk",
+    "platform/workloads/5g_lite/tasks/nrPBCH/Task_nrOFDMDemodulation_cmxmul.c.bk",
+    "platform/workloads/5g_lite/tasks/nrPBCH/Task_nrPBCHBitProcess.c.bkbk",
+    "platform/workloads/5g_lite/tasks/nrPBCH/Task_nrPBCHDescramble.c.bk",
+    "platform/workloads/5g_lite/tasks/nrPBCH/Task_nrSSBMeasurements.c.bk",
+    "platform/workloads/5g_lite/tasks/nrPDCCH/Task_nrChannelEstimate.c.bk"
+  ]
+}

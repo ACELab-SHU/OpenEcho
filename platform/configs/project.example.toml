@@ -1,0 +1,3 @@
+# Copy to .ace-echo/project.toml. V1 defaults to its 300 MHz profile.
+hardware = "venus2.0"
+toolchain = "shared"

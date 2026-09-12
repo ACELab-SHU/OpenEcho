@@ -1,0 +1,25 @@
+{
+  "schema": "ace-echo-live-knowledge-registry/v1",
+  "revision": 1,
+  "entries": [
+    {
+      "id": "venus-address-domains-and-transfer-units-v1",
+      "kind": "FOUNDATION_RULE",
+      "status": "LIVE",
+      "path": "docs/knowledge/foundations/venus-user-guide.md",
+      "section": "Address domains, transfer units, and memory maps",
+      "artifact_sha256": "5d3efd40b17c00215127581020d67af99015a6a5e313f0578abe5ada508a5203",
+      "scope": "all Venus backends for domain separation; absolute mappings remain backend scoped",
+      "review_receipt": "runs/knowledge-review-20260820-a003.json"
+    },
+    {
+      "id": "venus2p0-16x128-bf82d804-memory-address-domains",
+      "kind": "BACKEND_SCOPED_EMPIRICAL_PROFILE",
+      "status": "SCOPED_LIVE",
+      "path": "docs/knowledge/empirical/venus2p0-16x128/bf82d804/memory-address-domains.json",
+      "artifact_sha256": "696cc9b756c4d78701ae0f08bec14d768a9664e954f9a890cdeded0de1660895",
+      "scope": "backend venus2p0-16x128, RTL bf82d804, config digest 1eaadb9c...",
+      "review_receipt": "runs/knowledge-review-20260820-a003.json"
+    }
+  ]
+}

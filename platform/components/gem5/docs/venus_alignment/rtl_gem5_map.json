@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "scope": "first isolated feature: scalar VBARRIER and dynamic task return capture",
+  "entries": [
+    {
+      "feature": "L2 scheduler fire/return DMA lifecycle",
+      "rtl": "hardware/L2_scheduler/task_manager.sv:439-839; venus_task_lv_scheduler_dag_req_responder.sv:138-414; venus_task_lv_scheduler_tile_req_responder.sv:115-400",
+      "gem5": "tools/venus_l1_dag.py build_transfer_plan/build_return_plan; src/venus/VenusDagScheduler.cc",
+      "status": "behavior-mismatch",
+      "alignment_level": "L0 return bytes pass for A30; L1 issue routing now checkable; completion/DMT/tile lifecycle pending",
+      "evidence": "A30 runtime ELF yields 116 logical fires and 22 return slots, matching RTL DMA-go headers. The v5 plan and compare_dag_l1_plan.py verify issue order/address routing without replaying RTL times. Current VenusDagScheduler still performs transfer copies synchronously and starts/releases a tile without modeled DMA completion or DMT commit."
+    },
+    {
+      "feature": "scalar VBARRIER guard counter",
+      "rtl": "hardware/spiritrv32/scalar600_id_stage.sv:35,268-282",
+      "gem5": "src/cpu/minor/execute.cc:66,1159-1178; src/cpu/minor/dyn_inst.hh:172",
+      "status": "insufficient-observability",
+      "alignment_level": "L2 pending; source behavior modeled",
+      "evidence": "RTL has VEC_BARRIER_CNT_RESET=6. GEM5 event trace records six guard cycles, but an R1 RTL execution trace is not available."
+    },
+    {
+      "feature": "scalar VBARRIER delayed Venus busy observation",
+      "rtl": "hardware/spiritrv32/scalar600_id_stage.sv:255-266,278-280,854-857",
+      "gem5": "src/cpu/minor/cpu.cc:200-231; src/cpu/minor/pipeline.cc:131-137; src/venus/VenusSequencer.cc:926-955",
+      "status": "insufficient-observability",
+      "alignment_level": "L1/L2 pending; source behavior modeled",
+      "evidence": "Both models use registered state rather than same-cycle combinational idle. Requires fresh RTL trace for event-order confirmation."
+    },
+    {
+      "feature": "dynamic vreturn output capture",
+      "rtl": "task epilogue/L2 return DMA trace required",
+      "gem5": "src/venus/VenusDagScheduler.cc:632-674; tools/compare_dag_dma.py",
+      "status": "untested-against-rtl",
+      "alignment_level": "L0 RTL pending",
+      "evidence": "GEM5 captures source and length from runtime vreturn. Empty manifest outputs are deliberately dynamic and fall back to emitted dump lengths."
+    },
+    {
+      "feature": "nrPDSCHDMRSIndices legal vector length",
+      "rtl": "fresh R1 RTL task trace required",
+      "gem5": "VenusSequencer VSADD event/dump; tools/compare_vins_outputs.py",
+      "status": "confirmed-aligned-to-vemu-only",
+      "alignment_level": "L0/L1 VEMU-to-GEM5 pass; RTL pending",
+      "evidence": "Six VSADD instructions execute at VL=648; VEMU and GEM5 compare all six dumps exactly."
+    },
+    {
+      "feature": "64-byte scalar ABI return padding",
+      "rtl": "task return DMA trace required",
+      "gem5": "VenusDagScheduler runtime return capture",
+      "status": "confirmed-aligned-to-vemu-only",
+      "alignment_level": "L0 VEMU-to-GEM5 pass; RTL pending",
+      "evidence": "Three short_struct objects are fully initialized before vreturn; all 62 padding bytes per object are zero in VEMU and GEM5."
+    },
+    {
+      "feature": "Venus event-model time base",
+      "rtl": "sim/testbenches/testbench_postsyn_tile.sv:270-278 (tileclk period = 2 ns)",
+      "gem5": "configs/tutorial/part1/packet_gen.py; src/venus/VenusSequencer.cc, VenusLane.cc, VenusPacketGen.cc and VenusDagScheduler.hh",
+      "status": "source-parameterized-and-regression-tested; rtl-trace-pending",
+      "alignment_level": "L2/L3 blocked",
+      "evidence": "The four event-model objects now use ClockedObject cycle conversion; the default 1 GHz R1 exit tick and all functional/trace artifacts remain byte-exact. The isolated dual-clock rebase profile maps tile=500 MHz and system/AXI=250 MHz, but its re-scaled memory delays are explicitly not RTL measurements."
+    },
+    {
+      "feature": "scheduler-owned event clock phase",
+      "rtl": "sim/testbenches/testbench_postsyn_tile.sv:261-278,876-930; hardware/soc_hierachy/venus_block_wrapper.sv:148-169",
+      "gem5": "src/venus/VenusDagScheduler.hh:118-129; src/venus/VenusDagScheduler.cc:306,665,685",
+      "status": "phase-normalized-in-gem5-only",
+      "alignment_level": "L2/L3 blocked",
+      "evidence": "A 500 MHz tile-origin task_epilogue reached the 250 MHz Scheduler at a half-AXI-cycle phase in the dual-clock diagnostic run. stepEvent now uses clockEdge(cycles): all 14 scheduler-owned R1 trace events lie on 4 ns edges while task_epilogue remains a tile-domain event. This is not an RTL CDC or AXI-DMA timing proof."
+    }
+  ]
+}

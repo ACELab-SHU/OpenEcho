@@ -1,0 +1,16 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "date": "2026-08-17",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Force-inline scalar helper functions inside Venus tasks",
+  "proposed_rule": "A C helper reachable from a Venus task that has ordinary scalar or pointer parameters must be declared VENUS_INLINE so VenusSplit sees only the ABI-valid task entry point. Keep task entry parameters restricted to Venus vectors and aligned structs.",
+  "prompt": "If VenusSplit reports 'Inputs should only be venus vectors and structs', inspect helper functions before changing the algorithm. Mark pure task-local scalar helpers VENUS_INLINE and re-run the independent compile; do not weaken task ABI checks.",
+  "scope": "Venus C task frontend",
+  "evidence": {
+    "failing_run": "runs/oai-nr-pbch-decode-compile-a001",
+    "passing_run": "runs/oai-nr-pbch-decode-compile-a002",
+    "changed_helpers": ["reverse32", "gold_step", "make_gold_words"],
+    "algorithm_changed": false
+  },
+  "rollback": "Revert the workload commit; no compiler, Gem5, scheduler, or RTL source is changed."
+}

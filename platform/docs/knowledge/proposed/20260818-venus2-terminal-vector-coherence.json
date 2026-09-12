@@ -1,0 +1,49 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "date": "2026-08-18",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Enforce Venus2 physical-row, variable-length output, and task-call ABI checks",
+  "proposed_rule": "Derive all limits from the backend manifest. Audit every scalar pointer produced by vaddr against the active scalar/vector coherence contract and validate every encoded physical row selector. Do not use an undeclared literal vload/vstore address as scratch. Treat output count and each exact vreturn byte length independently; 64-byte DMA beats are not a per-port payload cap. If task stack arguments are unsupported, keep the generated C task at or below the register-argument limit and reject disassembly that loads incoming arguments from the stack.",
+  "prompt": "Before RTL handoff, audit every vaddr, vreturn, task boundary, and task prologue. Is scalar access coherent for the full indexed range? Is every physical vector row selector valid? Does every producer advertise the exact variable byte length accepted by its consumer, independently of DMA beat size? Does the C task exceed the register-only argument limit or load incoming arguments from its stack frame? Reject the candidate and rerun every Gem5 boundary case if any answer is unsafe or ambiguous.",
+  "scope": "Venus2 task generation, BAS DAG construction, Scheduler handoff, Gem5-to-RTL qualification",
+  "evidence": {
+    "rtl_commit": "2537dedc9ca0d2a815fc1a652c5703f92901d270",
+    "failed_attempts": [
+      "runs/oai-nr-pbch-decode-rtl-rx1-vector128-return-a001",
+      "runs/oai-nr-pbch-decode-rtl-rx1-register-gather-a001",
+      "runs/oai-nr-pbch-decode-rtl-rx1-row-ports-vector-copy-a001",
+      "runs/oai-nr-pbch-decode-rtl-rx1-direct-return-high-vaddr-a001",
+      "runs/oai-nr-pbch-decode-rtl-rx1-multioutput-128b-slot-a001",
+      "runs/oai-nr-pbch-decode-rtl-rx1-stack-args-a001"
+    ],
+    "latest_fresh_simv_sha256": "e73490eb217e0aa7f884255c464f404d1f6a2c76fcb407dbe3132228e89ec5ca",
+    "latest_rejected_l1_sha256": "cb3dfe1c697fbe8b22c45f6ddf2d9fc9132ecc500cf28e7c610e1f347a441067",
+    "diagnosis": "Gem5 remained bit-exact across several RTL-invalid shapes. Multi-row scalar vaddr traversal produced partially defined output, and a twelve-parameter consumer caused the compiler to load parameters nine through twelve from the incoming stack; RTL task launch did not materialize those stack arguments. The earlier attribution of a 128-byte-output failure to fixed 64-byte RTL return slots is withdrawn: RTL inspection shows an independent 32-bit return length propagated to DMA. Splitting happened to alter layout/routing, but it did not prove a per-port payload cap; that historical divergence requires separate localization before reuse as compatibility evidence.",
+    "remediated_software_candidate": {
+      "compile": "runs/oai-nr-pbch-decode-compile-a032",
+      "gem5_verification": [
+        "runs/oai-nr-pbch-decode-rx1-concat-verification-a001",
+        "runs/oai-nr-pbch-decode-rx2-concat-verification-a001",
+        "runs/oai-nr-pbch-decode-rx3-concat-verification-a001",
+        "runs/oai-nr-pbch-decode-rx4-concat-verification-a001"
+      ],
+      "scheduler": "runs/oai-nr-pbch-decode-scheduler-build-a019",
+      "status": "All eight task-boundary/final comparisons pass for the historical split representation. This proves that representation works in Gem5, not that fixed 64-byte ports are required. Fresh RTL qualification and a focused variable-length-output regression remain required."
+    }
+  },
+  "implementation_proposal": [
+    "Add a static gate that bounds scalar dereferences derived from vaddr to one backend physical row",
+    "Check every physical vector row selector against a backend-declared RTL limit",
+    "Flag literal vload/vstore scratch addresses unless their range is declared by the backend contract",
+    "Check task output count and each exact vreturn length as independent backend fields",
+    "Never infer a per-port payload cap from descriptor_transfer_chunk_bytes or dma_beat_bytes",
+    "Prefer one variable-length output for one semantic tensor; recommend BAS concat only for a proven semantic, compatibility, or measured scheduling need",
+    "Reject a task whose C parameter count exceeds abi.task_call.register_argument_count when stack arguments are unsupported",
+    "Confirm the task prologue does not fetch incoming arguments from the stack",
+    "Require the parsed vreturn byte count to match the producer type and consumer input",
+    "Keep all limits backend-configured rather than hardcoding Venus2 values in the generic agent"
+  ],
+  "rtl_change_required": false,
+  "gem5_change_required": false,
+  "rollback": "Remove the proposed static gates and prompt rules; no RTL or Gem5 source change is part of this proposal."
+}

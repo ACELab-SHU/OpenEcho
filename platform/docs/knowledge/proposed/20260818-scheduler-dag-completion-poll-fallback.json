@@ -1,0 +1,31 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "date": "2026-08-18",
+  "status": "PROPOSED_REQUIRES_HUMAN_APPROVAL",
+  "title": "Make missing native DAG-completion IRQ handling backend-configurable",
+  "proposed_rule": "When the authoritative RTL exposes valid nonzero DAG return address/length descriptors but does not deliver the native DAG-completion IRQ, a backend may explicitly enable Scheduler return-descriptor polling. Keep the fallback disabled by default, require every declared output descriptor to be valid before collection, transition RUN to C2D only once, and enqueue the DAG pseudo descriptor before starting any DMA whose final transfer can raise an interrupt.",
+  "prompt": "If a DAG writes correct outputs but fire_dag_fence never completes, first prove the configured output count, task count, return-value map, and every hardware return address/length register. Did the native DAG IRQ arrive? If not, and only if the backend manifest opts in, poll all return descriptors and reuse the normal output collection path. Before starting C2D, is the DAG pseudo descriptor already in the DMA FIFO so an immediate final-DMA interrupt cannot observe an empty queue?",
+  "scope": "ACE-ECHO Scheduler firmware handoff and immutable Venus RTL completion handling",
+  "evidence": {
+    "rtl_commit": "2537dedc9ca0d2a815fc1a652c5703f92901d270",
+    "gem5_verification": "runs/oai-nr-pbch-decode-rx1-result-slot-verification-a012",
+    "scheduler_build": "runs/oai-nr-pbch-decode-scheduler-build-a046",
+    "rtl_validation": "runs/oai-nr-pbch-decode-rtl-rx1-a053",
+    "l1_sha256": "2bee67c257148b2a59e18dc363ce1e786eff35d06db638aff22b7f397ff48b5c",
+    "output_sha256": "a9994e834881e09b43d3b2ea72800c02a92e82be1bbcff3fee805c34dd4fda39",
+    "diagnosis": "The PBCH task produced two exact 64-byte results and populated both RTL return descriptors, but the native DAG IRQ did not release fire_dag_fence. An opt-in polling fallback reached the normal C2D path. Its first implementation queued the pseudo descriptor after launching the final interrupting DMA, so the DMA IRQ preempted it and panicked on an empty FIFO. Queueing the descriptor first eliminated the race. RTL a053 completed at 2.442258 ms with firmware compare errors equal to zero and the PASS value 0x8 computed by report_and_stop.",
+    "regression_tests": "tests/test_scheduler_descriptor_types.py"
+  },
+  "implementation_proposal": [
+    "Declare completion_poll_fallback and completion_poll_interval under the backend scheduler_output ABI",
+    "Default the generic Scheduler build to completion polling disabled",
+    "Poll only while the DAG processor is in RUN and require every output address/length pair to be nonzero",
+    "Use one collection function for both native IRQ and polling completion paths",
+    "Set state to C2D and enqueue DAGPROC_PSEUDO_DSC before launching output DMA",
+    "Keep the final DMA as the sole interrupting transfer",
+    "Require a firmware self-check plus independent Gem5 artifact hashes before an RTL PASS claim"
+  ],
+  "rtl_change_required": false,
+  "gem5_change_required": false,
+  "rollback": "Set completion_poll_fallback to false or remove the two backend keys; the Scheduler then uses only its original native IRQ path. No RTL source change is involved."
+}

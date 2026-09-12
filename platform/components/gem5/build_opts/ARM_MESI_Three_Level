@@ -1,0 +1,5 @@
+BUILD_ISA=y
+USE_ARM_ISA=y
+RUBY=y
+PROTOCOL="MESI_Three_Level"
+RUBY_PROTOCOL_MESI_Three_Level=y

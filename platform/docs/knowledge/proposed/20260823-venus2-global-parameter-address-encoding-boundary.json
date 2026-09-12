@@ -1,0 +1,63 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260823-venus2-global-parameter-address-encoding-boundary",
+  "status": "EMPIRICAL_PROFILE_REVIEW_REQUIRED",
+  "role": "BACKEND_SCOPED_SEARCH_AND_QUALIFICATION_RULE",
+  "scope": {
+    "backend": "venus2p0-16x128",
+    "rtl_commit": "bf82d804",
+    "scheduler_abi": "configs/backends/venus2p0-16x128.json"
+  },
+  "observation": "The selected RTL has an 8 KiB global-parameter descriptor SRAM with 64-byte entries, hence 128 entries. A PSS scan DAG with 169 descriptors aliases descriptor indices 128 and above modulo 128 even though payload bytes still fit physical shared SRAM; task 1 block-20 inputs resolve to earlier block descriptors. Repacking the same computation to 85 descriptors eliminates the alias and produces 51/51 exact fresh-RTL returns.",
+  "evidence": {
+    "passing": [
+      {
+        "global_parameters": 85,
+        "run": "runs/oai-nr-sss-phase0-search-rtl-a006",
+        "result": "PASS_48_OF_48"
+      },
+      {
+        "global_parameters": 85,
+        "run": "runs/oai-nr-pss-scan16-rtl-a004",
+        "result": "PASS_51_OF_51"
+      },
+      {
+        "global_parameters": 86,
+        "result": "prior completing baseline; retained as a bound observation, not an exact capacity proof"
+      }
+    ],
+    "failing": [
+      {
+        "global_parameters": 169,
+        "run": "runs/oai-nr-pss-scan16-rtl-a003",
+        "result": "exact modulo-128 descriptor alias observed in RTL DMA inputs"
+      },
+      {
+        "global_parameters": 211,
+        "run": "runs/oai-nr-sss-phase0-search-rtl-a005",
+        "result": "invalid 0xfb800xxx temporary addresses and no GPIO2"
+      },
+      {
+        "global_parameters": 242,
+        "run": "runs/oai-nr-sss-phase0-search-rtl-a003",
+        "result": "invalid packed-address behavior; not deployable"
+      }
+    ]
+  },
+  "proposed_rule": [
+    "For RTL commit bf82d804, reject a DAG with more than 128 global-parameter descriptors before Scheduler/RTL handoff; count descriptors, not payload bytes.",
+    "When static tables are structurally compatible, pack them into fewer equal-width native vector values without changing fixed-point order or increasing task-local memory traffic.",
+    "Before claiming hardware deployability, confirm every temporary AXI write lies inside the backend manifest's physical shared-SRAM aperture and compare every visible return with the qualified Gem5 winner.",
+    "Keep 128 backend/RTL-profile scoped; do not apply it to a later RTL generation without checking that generation's descriptor SRAM."
+  ],
+  "negative_rules": [
+    "Do not repair invalid packed addresses with an assumed constant pointer offset.",
+    "Do not confuse the 128-entry descriptor table with the 512 KiB shared SRAM capacity or the 28-bit source-address field.",
+    "Do not promote a candidate merely because all tasks report execute-complete; GPIO completion and returned bytes are required.",
+    "Do not replace register-only vector arithmetic with task-local DSPM vstore/vload on this RTL without independent hardware qualification."
+  ],
+  "review_questions": [
+    "Should the backend manifest add max_global_parameter_descriptors=128 and the Scheduler adapter reject larger DAGs before firmware build?",
+    "Should the toolchain also report descriptor count beside total static payload bytes?"
+  ]
+}

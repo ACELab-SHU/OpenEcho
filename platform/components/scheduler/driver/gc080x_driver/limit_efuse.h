@@ -1,0 +1,69 @@
+#ifndef  __LIMIT_EFUSE_H__
+#define  __LIMIT_EFUSE_H__
+
+#include <stdio.h>
+// #include <string.h>
+#include "platform.h"
+
+#define LIB_EFUSE_VER "liblimit_efuse.a: V0.01"
+
+typedef struct chip_info {
+	int low_freq;
+	int high_freq;
+	int low_bandwidth;
+	int high_bandwidth;
+	int tx_num;
+	int rx_num;
+	int chip_ver;
+}CHIP_INFOR_T;
+
+typedef enum XTAL_EN_INDEX {
+	XTAL_EN_INDEX_M30_EN = 0,
+	XTAL_EN_INDEX_M38_EN,
+	XTAL_EN_INDEX_M40_EN,
+}XTAL_EN_INDEX_T;
+
+enum CHIP_VERSION {
+	CHIP_VERSION_D1 = 0,
+	CHIP_VERSION_D2,
+	CHIP_VERSION_E1,
+	CHIP_VERSION_E2,
+};
+
+typedef enum EFUSE_INFO_SECTION_OPT {
+	EFUSE_INFO_SECTION_OPT_CHIP_ID = 0,
+	EFUSE_INFO_SECTION_OPT_YEAR,
+	EFUSE_INFO_SECTION_OPT_WEEK,
+	EFUSE_INFO_SECTION_OPT_LOT1_ID,
+	EFUSE_INFO_SECTION_OPT_LOT2_ID,
+	EFUSE_INFO_SECTION_OPT_LOT3_ID,
+	EFUSE_INFO_SECTION_OPT_LOT4_ID,
+	EFUSE_INFO_SECTION_OPT_WAFER_ID,
+	EFUSE_INFO_SECTION_OPT_DIE_X,
+	EFUSE_INFO_SECTION_OPT_DIE_Y,
+	EFUSE_INFO_SECTION_OPT_1T1R_TEMP_H,
+	EFUSE_INFO_SECTION_OPT_1T1R_TEMP_L,
+	EFUSE_INFO_SECTION_OPT_2T2R_TEMP_H,
+	EFUSE_INFO_SECTION_OPT_2T2R_TEMP_L,
+	EFUSE_INFO_SECTION_OPT_AUXADC_H,
+	EFUSE_INFO_SECTION_OPT_AUXADC_L,
+
+	EFUSE_INFO_SECTION_OPT_END,
+}EFUSE_INFO_SECTION_OPT_T;
+
+
+#define FREQ_30M 	(30)
+#define FREQ_200M	(200)
+#define FREQ_3G_800M	(3800)
+#define FREQ_5G		(5000)
+#define FREQ_6G		(6000)
+#define FREQ_6_125G	 (6125)
+
+#define BANDWIDTH_12K	(12)
+#define BANDWIDTH_60M	(60000)
+#define BANDWIDTH_100M	(100000)
+
+int confim_config_info(rf_chip_phy_t *phy);
+int efuse_read_opt(rf_chip_phy_t *phy,unsigned char *data, EFUSE_INFO_SECTION_OPT_T index);
+
+#endif  // __LIMIT_EFUSE_H__

@@ -1,0 +1,51 @@
+{
+  "schema": "ace-echo-performance-prompt-seeds/v1",
+  "evidence_status": "HYPOTHESIS_ONLY",
+  "prompts": [
+    {
+      "id": "instruction-mix-bottleneck",
+      "prompt": "Inspect emitted Venus instructions and Gem5 per-task ticks. Identify the dominant instruction family, dependency chain, and avoidable dynamic work; propose one falsifiable schedule change.",
+      "tags": ["instruction", "schedule", "profiling"]
+    },
+    {
+      "id": "live-row-pressure",
+      "prompt": "Reconstruct stage-by-stage live vectors including compiler temporaries and retained outputs. Shorten one live range or move one boundary before reducing vector length.",
+      "tags": ["register", "rows", "liveness"]
+    },
+    {
+      "id": "continuous-memory",
+      "prompt": "Map logical access patterns to continuous windows. Test whether layout pretransformation or in-register shuffle removes repeated short loads/stores without changing the ABI.",
+      "tags": ["memory", "layout", "shuffle"]
+    },
+    {
+      "id": "bit-exact-fusion",
+      "prompt": "Search adjacent stages for a fusion that preserves the approved rounding, saturation, shift, mask, and output checkpoint semantics. Measure the fused candidate against the unfused baseline.",
+      "tags": ["fusion", "fixed-point"]
+    },
+    {
+      "id": "static-precomputation",
+      "prompt": "Separate configuration-derived values from runtime data. Precompute legal tables, indices, or layouts outside the task while preserving address non-overlap and configuration identity.",
+      "tags": ["precompute", "configuration"]
+    },
+    {
+      "id": "algorithmic-reformulation",
+      "prompt": "Starting from the numerical contract rather than the scalar control flow, derive a mathematically equivalent fixed-point formulation that better matches available fused, complex, mask, and reduction instructions.",
+      "tags": ["algorithm", "intrinsics", "ai-first"]
+    },
+    {
+      "id": "vectorize-payload-first",
+      "prompt": "Identify every payload-sized scalar loop in the hot task. Choose the largest regular dimension—RE, symbol, antenna, layer, code-block element, or a legal batch—and map it to long Venus vectors using continuous layout, masks, shuffles, reductions, or fusion. Keep scalar work only for configuration, address setup, or a measured unavoidable tail; confirm the transformation from emitted and dynamic scalar-versus-Venus instruction counts before ranking it.",
+      "tags": ["vectorization", "parallelism", "instruction-mix", "ai-first"]
+    },
+    {
+      "id": "dag-critical-path",
+      "prompt": "Profile the full DAG critical path and data movement. Move or fuse exactly one boundary, then recheck every exposed intermediate and final output before ranking it.",
+      "tags": ["dag", "critical-path", "fusion"]
+    },
+    {
+      "id": "rtl-compatibility-reducer",
+      "prompt": "If Gem5 passes and RTL fails, preserve firmware and case digests, find the first divergent instruction or address transaction, and create the smallest positive/negative probe for the syntax or ABI hypothesis.",
+      "tags": ["rtl", "gem5", "compatibility"]
+    }
+  ]
+}

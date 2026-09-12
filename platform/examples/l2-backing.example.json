@@ -1,0 +1,10 @@
+{
+  "schema": "venus-l2-backing/v1",
+  "inputs": [
+    {
+      "address": 0,
+      "file": "/absolute/path/to/input.bin",
+      "description": "Immutable time-zero application input"
+    }
+  ]
+}

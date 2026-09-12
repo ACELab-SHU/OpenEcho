@@ -1,0 +1,26 @@
+{
+  "schema": "ace-echo-knowledge-proposal/v1",
+  "id": "20260818-dsl-static-dependency-input-order",
+  "status": "PENDING_HUMAN_REVIEW",
+  "backend_id": "venus2p0-16x128",
+  "category": "dsl_abi",
+  "proposed_rule": "After BAS compilation, verify every task function argument against final_output all_input order, especially when static pointer/vector inputs and producer-output pointer dependencies are mixed. Reorder the source signature and BAS call together when the serialized ABI groups static inputs before dependencies.",
+  "proposed_linter_hint": "Compare compiler-extracted input_type.json with the ordered final DAG all_input list and reject incompatible datatype or pointer positions before Gem5 execution.",
+  "evidence": {
+    "workload": "workloads/5g_lite/tasks/oai_nr_pdsch_frontend_compact_venus2",
+    "failed_runs": [
+      "runs/oai-nr-pdsch-frontend-compact-rx1-fast-a003",
+      "runs/oai-nr-pdsch-frontend-compact-rx1-fast-a004"
+    ],
+    "symptoms": [
+      "all-zero second-task outputs when config and dependency descriptors were bound to the wrong formal positions",
+      "page-table fault at 0x1000600 after dependency positions were corrected but a Venus pointer descriptor was CPU-dereferenced"
+    ],
+    "positive_run": "runs/oai-nr-pdsch-frontend-compact-rx1-verification-a001",
+    "resolution": "match serialized input order and keep scalar accesses on vaddr(local_vector); use pointer descriptors only with Venus load/store operations"
+  },
+  "limitations": [
+    "The exact grouping policy is a current toolchain behavior and should be encoded by compiler-generated bindings rather than assumed by future backends.",
+    "The pointer-address restriction needs a dedicated positive/negative conformance test before promotion to live knowledge."
+  ]
+}

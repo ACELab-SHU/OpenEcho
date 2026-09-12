@@ -1,0 +1,3 @@
+RUBY=y
+PROTOCOL="Garnet_standalone"
+RUBY_PROTOCOL_Garnet_standalone=y

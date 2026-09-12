@@ -1,0 +1,95 @@
+{
+  "run_id": "pdsch-dmrsindices-16x128-r1",
+  "scope": "VEMU-to-GEM5 task-level validation; not an RTL execution result",
+  "rtl_revision_target": "bf82d804968672e04db31d105876092d78969b0e",
+  "gem5_revision": "f20e294b2d6de8170da5aff669375f535561690f",
+  "vemu_revision": "c7372258be35f28b2c513b69429922f47674a0ef",
+  "task": {
+    "vemu_dag_name": "nrPDSCHDag2_hw_2p0",
+    "vemu_task_id": 1,
+    "vemu_task_name": "Task_nrPDSCHDMRSIndices",
+    "gem5_task_id": 0,
+    "geometry": {"lanes": 16, "rows": 128},
+    "task_bin_sha256": "0ccf76c33295d65f46cec7146249fc3054b47e6fb0089f9aa4c5690e329db78e"
+  },
+  "vemu_case": {
+    "dag_json_sha256": "1a3619556f1493525f1ede76f3b2af5ae5792cd922eb7fc60f160240ac7539c7",
+    "combined_bin_sha256": "19aaec06dd76ec6d3018d64a3c186d06abc602b609fe4e46b3f28ceff32ebcfb",
+    "inputs": [
+      {"name": "pdsch_config", "offset": 293184, "bytes": 1984, "sha256": "2137d2915a3005a5088c56e292ae4c1e1fe28e8ad5a408af9b8dda99c97c1578"},
+      {"name": "carrier", "offset": 295168, "bytes": 64, "sha256": "68a27cd5cab66aea7dfdac6616e169b233f7f327fd8a5c7868d1fab16c549d8b"}
+    ]
+  },
+  "l0_returns": {
+    "address_mask": "0x7fffffff",
+    "ports": [
+      {"port": 0, "bytes": 1296, "canonical_source": "0x101000", "sha256": "930e0241da24621eb52efd52827a2bbd98276df8a3f94d7bdba45a5496389b6e"},
+      {"port": 1, "bytes": 6, "canonical_source": "0x100000", "sha256": "95846490b86facd35cfcc054b01da3613df3677bb0a6c21a8460884136360632"},
+      {"port": 2, "bytes": 64, "canonical_source": "0x23cc0", "sha256": "e7b4bb67551dde9589c1553dfda37a942a18caf184f9cc1629d25cf5c60be416"},
+      {"port": 3, "bytes": 64, "canonical_source": "0x23c80", "sha256": "8396ef24d8cdbb6148af7e5f0c552b2fd063b39951f840b9ecf2401c2db9ef0b"},
+      {"port": 4, "bytes": 64, "canonical_source": "0x23c40", "sha256": "8a023a9e4affbb255a6b48ae85cc4a7d1a1b9e8e6809fe9e48535c01c1fc071a"}
+    ],
+    "result": "PASS: all returned payload bytes, dynamic lengths and canonical sources match"
+  },
+  "l1_instruction_dumps": {
+    "opcode": "VSADD",
+    "instruction_count": 6,
+    "vl": 648,
+    "elements_per_instruction": 648,
+    "per_dump_sha256": "f4be6f1e31df20b7f1dc7b023ead913933dfcf91c94650dede6db3f086a80c22",
+    "result": "PASS: six strict VEMU/GEM5 instruction dumps match"
+  },
+  "software_regression_against_prepatch": {
+    "prepatch_case": "isolated 16x128 VEMU rebuild; no production VEMU or scheduler artifact modified",
+    "temporary_peak_bytes": 73344,
+    "temporary_limit_bytes": 256000,
+    "final_outputs": {
+      "files": 7,
+      "result": "PASS: all DAGRet payloads byte-identical"
+    },
+    "internal_vsadd": {
+      "prepatch_vl": 2048,
+      "r1_vl": 648,
+      "legal_prefix_elements": 648,
+      "result": "PASS: every legal prefix element matches; prepatch-only tail elements 649..2048 are zero in this run but outside the logical result"
+    },
+    "abi_padding": "Prepatch happened to emit zero padding in this VEMU run, but the C objects were not initialized; R1 makes all 64 bytes defined."
+  },
+  "rtl_replay_fixture": {
+    "path": "../venus_soc/sim/testbenches/postsyn_tilelevel_descriptor/PDSCHDag2_hw_2p0_r1_task1",
+    "task_bin_sha256": "0ccf76c33295d65f46cec7146249fc3054b47e6fb0089f9aa4c5690e329db78e",
+    "dag_json_sha256": "e7ca5c4e53c80164065ec712d4d6ca400dc0931c8a2e116b772b4933d3bc9cff",
+    "dma_expected_file_sha256": "db07081652cbd0bd940145fc106d3e12cba03183dd52d6f331387b49c675f972",
+    "selection_rule": "testbench selects the matching debug_task_name from the full DAG JSON using TARGET_BIN_FILE_NAME",
+    "testbench_source": "../venus_soc/sim/testbenches/testbench_postsyn_tile.sv:140-176",
+    "provenance": "VEMU canonical convert.py converted the same R1 emulator output into testbench data; it is an input/RTL-check fixture, not a task-code or scheduler change."
+  },
+  "gem5_timebase_regression": {
+    "source_change": "VenusSequencer, VenusLane, VenusPacketGen and VenusDagScheduler are ClockedObjects; callback delays are expressed in object cycles. Scheduler stepEvent is phase-normalized with clockEdge(cycles).",
+    "default_1ghz": {
+      "profile": "venus-rtl-16x128",
+      "outdir": "/tmp/rtl_gem5_pdsch2p0_r1/phase_regression_default_isolated",
+      "sim_ticks": 37894000,
+      "result": "PASS: 5 ports, 6 VSADD dumps, DAG trace, sequencer monitor and CPU debug log are byte-exact against the pre-phase-regression 1GHz R1 baseline"
+    },
+    "dualclock_rebase": {
+      "profile": "venus-rtl-16x128-dualclock-rebase",
+      "outdir": "/tmp/rtl_gem5_pdsch2p0_r1/phase_regression_dual_isolated",
+      "system_axi_clock": "250MHz / 4ns / 4000 ticks",
+      "tile_clock": "500MHz / 2ns / 2000 ticks",
+      "sim_ticks": 85256000,
+      "functional_result": "PASS: all 5 VEMU/GEM5 returned payloads and all 6 VSADD dumps are bit-exact",
+      "phase_result": "PASS: 663815 CPU/tile trace lines are divisible by 2000 ticks; all 14 scheduler-owned DAG trace events are divisible by 4000 ticks. task_epilogue=85250000 is retained as a tile-origin notification.",
+      "delay_policy": "logical 6->12ns, DSPM 6/1/2->12/2/4ns and bank/mask 30/1/1->60/2/2ns preserve previous GEM5 cycle counts only; they are not RTL delay measurements."
+    },
+    "acceptance_boundary": "This demonstrates functional stability and clock-domain phase discipline in GEM5. It is not an RTL CDC, AXI DMA, functional, L2 or L3 timing result."
+  },
+  "l2_cycle": {
+    "result": "NOT_RUN",
+    "reason": "no fresh RTL R1 trace. GEM5 now has a source-mapped 500MHz tile / 250MHz AXI diagnostic topology, but local-memory and CDC latency require RTL trace measurement."
+  },
+  "rtl_functional_validation": {
+    "result": "BLOCKED",
+    "reason": "VCS elaboration reached the license checkout stage but license server was unavailable; no RTL payload or timing result is asserted"
+  }
+}
